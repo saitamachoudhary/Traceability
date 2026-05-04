@@ -15,15 +15,6 @@ export const apiClient = async ({ workflowId, date_from, date_to }) => {
     const formData = new FormData();
 
     formData.append("data", payload);
-    // formData.append("data", JSON.stringify({}));
-    // formData.append("workflowId", workflowId);
-    // formData.append(
-    //   "variable",
-    //   JSON.stringify({
-    //     date_from: date_from || "",
-    //     date_to: date_to || ""
-    //   })
-    // );
 
     const response = await fetch(BASE_URL, {
       method: "POST",
@@ -45,3 +36,32 @@ export const apiClient = async ({ workflowId, date_from, date_to }) => {
     throw error;
   }
 };
+
+// Used by Filter APIs — accepts any variable shape (customer, projects, packages, etc.)
+export const apiClientWithVariable = async ({ workflowId, variable }) => {
+  const payload = JSON.stringify({
+    "data": {},
+    "workflowId": workflowId,
+    "variable": variable || {}
+  });
+  try {
+    const formData = new FormData();
+    formData.append("data", payload);
+
+    const response = await fetch(BASE_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`
+      },
+      body: formData
+    });
+
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    const result = await response.json();
+    return result?.data?.data;
+  } catch (error) {
+    console.error("Filter API Request Failed:", error);
+    throw error;
+  }
+};
+

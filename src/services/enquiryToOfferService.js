@@ -1,4 +1,5 @@
 import { callWorkflow } from '../utils/workflowApi';
+import { apiClientWithVariable } from '../utils/apiClient';
 
 const normalizeValue = (value, fallback = 0) => {
   if (value === "No Data" || value === null || value === undefined) {
@@ -47,4 +48,31 @@ export const getConversionChartData = (filters) =>
   callWorkflow({
     workflowId: "4224252f-cf55-11f0-8899-a7e51d11fe6a",
     ...filters
+  }).then(res => res?.resultSet || []);
+
+export const getCustomers = (filters) =>
+  apiClientWithVariable({
+    workflowId: "b81107b2-d729-11f0-a2fd-cbc6fa243cb8",
+    variable: {
+      projects: filters.projects || "",
+      packages: filters.packages || ""
+    }
+  }).then(res => res?.resultSet || []);
+
+export const getProjects = (filters) =>
+  apiClientWithVariable({
+    workflowId: "414bf9e6-d732-11f0-a2fd-79c14edccab5",
+    variable: {
+      customer: filters.customer || "",
+      packages: filters.packages || ""
+    }
+  }).then(res => res?.resultSet || []);
+
+export const getPackages = (filters) =>
+  apiClientWithVariable({
+    workflowId: "f14807bb-d73a-11f0-a2fd-2f1759f8d68a",
+    variable: {
+      customer: filters.customer || "",
+      projects: filters.projects || ""
+    }
   }).then(res => res?.resultSet || []);
