@@ -42,3 +42,9 @@ export const getConversionRate = (filters) =>
     workflowId: "bb48f0d5-cf53-11f0-8899-cf73d391ae59",
     ...filters
   }).then(res => normalizeValue(res?.avg_conversion_rate, 0));
+
+export const getConversionChartData = (filters) =>
+  callWorkflow({
+    workflowId: "4224252f-cf55-11f0-8899-a7e51d11fe6a",
+    ...filters
+  }).then(res => res?.resultSet || []);

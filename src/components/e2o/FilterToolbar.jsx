@@ -8,7 +8,7 @@ export default function FilterToolbar() {
           <Filter className="w-4 h-4" />
           FILTERS
         </div>
-        
+
         <div className="flex flex-1 items-center gap-4">
           <div className="flex flex-col gap-1.5 flex-1 min-w-[150px]">
             <label className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Customer</label>
@@ -19,7 +19,7 @@ export default function FilterToolbar() {
               <ChevronDown className="w-4 h-4 text-text-secondary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
-          
+
           <div className="flex flex-col gap-1.5 flex-1 min-w-[150px]">
             <label className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Project</label>
             <div className="relative">
@@ -29,7 +29,7 @@ export default function FilterToolbar() {
               <ChevronDown className="w-4 h-4 text-text-secondary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
-          
+
           <div className="flex flex-col gap-1.5 flex-1 min-w-[150px]">
             <label className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Package Type</label>
             <div className="relative">
@@ -40,7 +40,7 @@ export default function FilterToolbar() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5 flex-1 min-w-[180px]">
+          {/* <div className="flex flex-col gap-1.5 flex-1 min-w-[180px]">
             <label className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Client Enquiry Ref. No.</label>
             <div className="relative">
               <input 
@@ -50,9 +50,9 @@ export default function FilterToolbar() {
               />
               <Search className="w-4 h-4 text-text-secondary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
-          </div>
-          
-          <div className="flex flex-col gap-1.5 flex-1 min-w-[150px]">
+          </div> */}
+
+          {/* <div className="flex flex-col gap-1.5 flex-1 min-w-[150px]">
             <label className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">AHPL Offer Date</label>
             <div className="relative">
               <input 
@@ -62,7 +62,7 @@ export default function FilterToolbar() {
               />
               <Calendar className="w-4 h-4 text-text-secondary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 

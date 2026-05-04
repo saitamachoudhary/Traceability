@@ -1,7 +1,13 @@
+import * as Highcharts from 'highcharts';
+import _HighchartsReact from 'highcharts-react-official';
+const HighchartsReact = _HighchartsReact.default || _HighchartsReact;
+
 import { useEnquiryKpi } from '../../hooks/useEnquiryKpi';
+import { useEnquiryChart } from '../../hooks/useEnquiryChart';
 
 export default function KPICards({ filters }) {
   const { data, isLoading, error } = useEnquiryKpi(filters || { date_from: "", date_to: "" });
+  const { categories, series, isLoading: isChartLoading } = useEnquiryChart(filters || { date_from: "", date_to: "" });
 
   const formatNumber = (num) => {
     if (num === 0 || num === null || num === undefined) return '0';
@@ -20,6 +26,56 @@ export default function KPICards({ filters }) {
     if (isLoading) return <div className="h-8 w-24 bg-gray-200 animate-pulse rounded mt-2"></div>;
     return formatter(value);
   };
+
+  const getChartOptions = (categories, data) => ({
+    chart: {
+      type: "line",
+      backgroundColor: "transparent",
+      height: 220
+    },
+    title: { text: null },
+    xAxis: {
+      categories,
+      lineColor: "#e1e2e8",
+      labels: {
+        style: { color: "#414750", fontSize: "12px" }
+      }
+    },
+    yAxis: {
+      title: { text: null },
+      gridLineColor: "#eceef4"
+    },
+    tooltip: {
+      useHTML: true,
+      shared: true,
+      formatter: function () {
+        return `
+          <div style="
+            background:#004274;
+            color:white;
+            padding:8px 12px;
+            border-radius:8px;
+          ">
+            <strong>${this.category}</strong><br/>
+            ${this.y.toFixed(2)}%
+          </div>
+        `;
+      }
+    },
+    legend: { enabled: false },
+    credits: { enabled: false },
+    series: [
+      {
+        name: "Conversion Rate",
+        data,
+        color: "#004274",
+        marker: {
+          enabled: true,
+          radius: 4
+        }
+      }
+    ]
+  });
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 grid-rows-none lg:grid-rows-[auto_auto] gap-6">
@@ -47,20 +103,21 @@ export default function KPICards({ filters }) {
         <h3 className="text-[14px] font-bold text-text-primary mb-1">Conversion Rate</h3>
         <p className="text-[12px] text-text-secondary mb-4">Yearly Performance Trend</p>
 
-        {/* Mini Chart Placeholder */}
-        <div className="flex items-end gap-1 h-12 mb-4 flex-grow relative mt-8">
-          <div className="w-full bg-surface-container rounded-t h-[20%]"></div>
-          <div className="w-full bg-surface-container rounded-t h-[30%]"></div>
-          <div className="w-full bg-surface-container rounded-t h-[40%]"></div>
-          <div className="w-full bg-surface-container rounded-t h-[50%]"></div>
-          <div className="w-full bg-primary rounded-t h-[80%] relative group">
-            <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[11px] font-bold text-primary whitespace-nowrap bg-secondary-container px-1.5 py-0.5 rounded shadow-sm opacity-100 transition-opacity">
-              {isLoading ? "..." : formatPercent(data.conversion)}
-            </span>
+        {/* Highcharts Integration */}
+        {isChartLoading ? (
+          <div className="flex-grow flex items-center justify-center">
+            <div className="w-full h-[180px] bg-gray-50 animate-pulse rounded-lg flex items-center justify-center text-gray-400 text-sm">
+              Loading Performance Trend...
+            </div>
           </div>
-          <div className="w-full bg-surface-container rounded-t h-[45%]"></div>
-          <div className="w-full bg-surface-container rounded-t h-[35%]"></div>
-        </div>
+        ) : (
+          <div className="flex-grow">
+            <HighchartsReact
+              highcharts={Highcharts}
+              options={getChartOptions(categories, series)}
+            />
+          </div>
+        )}
 
         <div className="flex justify-between items-center text-[12px] font-medium bg-surface-container/50 -mx-6 -mb-6 px-6 py-4 border-t border-border-outline/50 mt-auto">
           <span className="text-text-secondary">Overall Conversion Rate</span>
