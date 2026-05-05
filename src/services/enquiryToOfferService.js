@@ -1,5 +1,8 @@
 import { callWorkflow } from '../utils/workflowApi';
 import { apiClientWithVariable } from '../utils/apiClient';
+import { downloadFile } from "../utils/downloadApi";
+import { BEARER_TOKEN } from '../config';
+
 
 const normalizeValue = (value, fallback = 0) => {
   if (value === "No Data" || value === null || value === undefined) {
@@ -76,3 +79,58 @@ export const getPackages = (filters) =>
       projects: filters.projects || ""
     }
   }).then(res => res?.resultSet || []);
+
+export const downloadTemplate = () => {
+  return downloadFile({
+    data: {
+      connectionId: "af995f25-c513-11f0-8899-bb17b82660ad",
+      tables: [
+        {
+          tableName: "enquiry_to_offer_new",
+          columns: [
+            "offer_reference_no",
+            "customer",
+            "projects",
+            "plant_rating",
+            "plant_location",
+            "enquiry_source",
+            "enquiry_type",
+            "enquiry_category",
+            "packages",
+            "scope",
+            "client_enquiry_reference",
+            "client_enq_receipt_date",
+            "offer_submission_planned_date",
+            "actual_offer_date",
+            "currency",
+            "offer_value",
+            "responsible_sm",
+            "ahpl_offer_status",
+            "customer_enquiry_status",
+            "remark"
+          ]
+        }
+      ]
+    }
+  });
+};
+
+export const getFilePreview = async (filePath) => {
+  const PREVIEW_URL = "https://apphub.andritz.com/appsapi/ai/grid";
+  const response = await fetch(PREVIEW_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${BEARER_TOKEN}`
+    },
+    body: JSON.stringify({
+      data: {
+        file: filePath,
+        limit: 200
+      }
+    })
+  });
+
+  const result = await response.json();
+  return result?.data;
+};

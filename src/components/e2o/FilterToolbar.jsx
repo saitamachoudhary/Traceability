@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import { Search, Filter, ChevronDown, X } from 'lucide-react';
-import { useEnquiryFilters } from '../../hooks/useEnquiryFilters';
 
 /* ── Reusable searchable dropdown ── */
 function SearchableSelect({ label, placeholder, value, options, onChange, isLoading }) {
@@ -115,8 +114,7 @@ function SearchableSelect({ label, placeholder, value, options, onChange, isLoad
 }
 
 /* ── FilterToolbar ── */
-export default function FilterToolbar() {
-  const { filters, options, isLoading, updateFilter, resetFilters } = useEnquiryFilters();
+export default function FilterToolbar({ filters, options, isLoading, updateFilter, resetFilters }) {
 
   return (
     <div className="w-full mt-6 bg-surface rounded-2xl p-6 shadow-[var(--shadow-default)] flex flex-col xl:flex-row xl:items-end justify-between gap-6">
