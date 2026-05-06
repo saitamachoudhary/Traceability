@@ -5,9 +5,9 @@ const HighchartsReact = _HighchartsReact.default || _HighchartsReact;
 import { useEnquiryKpi } from '../../hooks/useEnquiryKpi';
 import { useEnquiryChart } from '../../hooks/useEnquiryChart';
 
-export default function KPICards({ filters }) {
-  const { data, isLoading, error } = useEnquiryKpi(filters || { date_from: "", date_to: "" });
-  const { categories, series, isLoading: isChartLoading } = useEnquiryChart(filters || { date_from: "", date_to: "" });
+export default function KPICards({ filters, refreshTrigger }) {
+  const { data, isLoading, error } = useEnquiryKpi(filters || { date_from: "", date_to: "" }, refreshTrigger);
+  const { categories, series, isLoading: isChartLoading } = useEnquiryChart(filters || { date_from: "", date_to: "" }, refreshTrigger);
 
   const formatNumber = (num) => {
     if (num === 0 || num === null || num === undefined) return '0';

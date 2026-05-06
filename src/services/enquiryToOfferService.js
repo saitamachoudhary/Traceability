@@ -1,7 +1,8 @@
-import { callWorkflow } from '../utils/workflowApi';
+import { callWorkflow } from '../utils/tableAPi';
 import { apiClientWithVariable } from '../utils/apiClient';
 import { downloadFile } from "../utils/downloadApi";
 import { BEARER_TOKEN } from '../config';
+import { callWorkflowAPI } from "../utils/tableAPi";
 
 
 const normalizeValue = (value, fallback = 0) => {
@@ -133,4 +134,9 @@ export const getFilePreview = async (filePath) => {
 
   const result = await response.json();
   return result?.data;
+};
+
+export const fetchEnquiryTable = (filters) => {
+  const WORKFLOW_ID = "6073fef8-446b-11f1-8e18-73bae3646b63";
+  return callWorkflowAPI(WORKFLOW_ID, filters);
 };

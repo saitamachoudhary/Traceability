@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Calendar, RotateCcw, ArrowLeft } from 'lucide-react';
 import DateRangePickerModal from './DateRangePickerModal';
 
-export default function WorkflowHeader({ dateRange, setDateRange }) {
+export default function WorkflowHeader({ dateRange, setDateRange, onGoBack, onReset }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleApplyRange = (start, end) => {
@@ -41,11 +41,17 @@ export default function WorkflowHeader({ dateRange, setDateRange }) {
           </button>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-transparent border border-white/30 text-white hover:bg-white/10 transition-colors text-[14px] font-medium">
+          <button 
+            onClick={onReset}
+            className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-transparent border border-white/30 text-white hover:bg-white/10 transition-colors text-[14px] font-medium cursor-pointer"
+          >
             <RotateCcw className="w-4 h-4" />
             Reset
           </button>
-          <button className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-white text-[#0f3d66] hover:bg-gray-50 transition-colors text-[14px] font-bold shadow-sm">
+          <button 
+            onClick={onGoBack}
+            className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-white text-[#0f3d66] hover:bg-gray-50 transition-colors text-[14px] font-bold shadow-sm cursor-pointer"
+          >
             <ArrowLeft className="w-4 h-4" />
             Go Back
           </button>

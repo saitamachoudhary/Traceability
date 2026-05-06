@@ -153,9 +153,9 @@ export default function FilterToolbar({ filters, options, isLoading, updateFilte
       </div>
 
       <div className="shrink-0 flex items-end gap-3 h-[58px]">
-        <button className="bg-[#004274] text-white hover:bg-[#00335a] px-5 h-[40px] rounded-[8px] text-[14px] font-bold transition-colors shadow-sm">
+        {/* <button className="bg-[#004274] text-white hover:bg-[#00335a] px-5 h-[40px] rounded-[8px] text-[14px] font-bold transition-colors shadow-sm">
           Apply Filters
-        </button>
+        </button> */}
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ import {
   getConversionRate
 } from '../services/enquiryToOfferService';
 
-export const useEnquiryKpi = (filters) => {
+export const useEnquiryKpi = (filters, refreshTrigger = 0) => {
   const [data, setData] = useState({
     totalOffer: 0,
     tur: 0,
@@ -70,7 +70,7 @@ export const useEnquiryKpi = (filters) => {
     return () => {
       isMounted = false;
     };
-  }, [filters.date_from, filters.date_to]);
+  }, [filters.date_from, filters.date_to, filters.customer, filters.projects, filters.packages, refreshTrigger]);
 
   return { data, isLoading, error };
 };

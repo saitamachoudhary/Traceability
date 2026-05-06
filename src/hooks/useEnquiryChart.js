@@ -16,7 +16,7 @@ const transformChartData = (data) => {
   };
 };
 
-export const useEnquiryChart = (filters) => {
+export const useEnquiryChart = (filters, refreshTrigger = 0) => {
   const [chartData, setChartData] = useState({
     categories: [],
     series: []
@@ -53,7 +53,7 @@ export const useEnquiryChart = (filters) => {
     return () => {
       isMounted = false;
     };
-  }, [filters.date_from, filters.date_to]);
+  }, [filters.date_from, filters.date_to, filters.customer, filters.projects, filters.packages, refreshTrigger]);
 
   return { ...chartData, isLoading, error };
 };

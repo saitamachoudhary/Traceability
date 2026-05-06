@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { fetchEnquiryTable } from '../services/enquiryTableService';
+import { fetchEnquiryTable } from '../services/enquiryToOfferService';
 
-export const useEnquiryTable = (filters) => {
+export const useEnquiryTable = (filters, refreshTrigger = 0) => {
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -28,13 +28,12 @@ export const useEnquiryTable = (filters) => {
   useEffect(() => {
     getTableData();
   }, [
-    filters.customer, 
-    filters.projects, 
-    filters.package_type, 
-    filters.client_enq_ref_no, 
-    filters.actual_offer_date, 
-    filters.date_from, 
-    filters.date_to
+    filters.customer,
+    filters.projects,
+    filters.package_type,
+    filters.date_from,
+    filters.date_to,
+    refreshTrigger
   ]);
 
   return { data, columns, loading, refresh: getTableData };
