@@ -64,3 +64,18 @@ export const apiClientWithVariable = async ({ workflowId, variable }) => {
     throw error;
   }
 };
+
+export const callWorkflowAPI = async (payload) => {
+  const formData = new FormData();
+  formData.append("data", JSON.stringify(payload));
+
+  const response = await fetch(BASE_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${BEARER_TOKEN}`
+    },
+    body: formData
+  });
+
+  return await response.json();
+};

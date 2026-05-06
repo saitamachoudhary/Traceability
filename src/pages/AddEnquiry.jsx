@@ -1,13 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { ArrowLeft } from 'lucide-react';
-import { useToast } from '../contexts/ToastContext';
 import CustomSelect from '../components/common/CustomSelect';
 import CustomDatePicker from '../components/common/CustomDatePicker';
+import { useSaveEnquiry } from '../hooks/useSaveEnquiry';
 
 export default function AddEnquiry() {
   const navigate = useNavigate();
-  const { addToast } = useToast();
+  const { handleSave } = useSaveEnquiry();
 
   const {
     register,
@@ -19,15 +19,7 @@ export default function AddEnquiry() {
   });
 
   const onSubmit = async (data) => {
-    try {
-      console.log('Form Data Submitted:', data);
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      addToast('success', 'Project details saved successfully!');
-      navigate('/e2o');
-    } catch (err) {
-      addToast('error', 'Failed to save data. Please try again.');
-    }
+    await handleSave(data);
   };
 
   // Reusable styles based on the design system
@@ -228,6 +220,22 @@ export default function AddEnquiry() {
                     value={value}
                     onChange={onChange}
                     placeholder="Select planned date"
+                  />
+                )}
+              />
+            </div>
+            {/* 13. client_enq_receipt_date */}
+            <div>
+              <label className={labelStyle}>Client Enq Receipt Date</label>
+              <Controller
+                name="client_enq_receipt_date"
+                control={control}
+                defaultValue=""
+                render={({ field: { onChange, value } }) => (
+                  <CustomDatePicker
+                    value={value}
+                    onChange={onChange}
+                    placeholder="Select Enq date"
                   />
                 )}
               />

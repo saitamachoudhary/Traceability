@@ -1,8 +1,9 @@
 import { callWorkflow } from '../utils/tableAPi';
-import { apiClientWithVariable } from '../utils/apiClient';
+import { apiClientWithVariable, callWorkflowAPI as apiCallWorkflow } from '../utils/apiClient';
 import { downloadFile } from "../utils/downloadApi";
 import { BEARER_TOKEN } from '../config';
 import { callWorkflowAPI } from "../utils/tableAPi";
+import { removeEmptyFields } from '../utils/removeEmptyFields';
 
 
 const normalizeValue = (value, fallback = 0) => {
@@ -139,4 +140,38 @@ export const getFilePreview = async (filePath) => {
 export const fetchEnquiryTable = (filters) => {
   const WORKFLOW_ID = "6073fef8-446b-11f1-8e18-73bae3646b63";
   return callWorkflowAPI(WORKFLOW_ID, filters);
+};
+
+export const saveEnquiryData = async (formValues) => {
+  const cleanedData = removeEmptyFields({
+    appId: "af853ae1-c513-11f0-8899-af2975f8a698",
+
+    customer: formValues.customer,
+    projects: formValues.projects,
+    packages: formValues.packages,
+    scope: formValues.scope,
+    enquiry_type: formValues.enquiry_type,
+    offer_value: formValues.offer_value,
+    client_enquiry_reference: formValues.client_enquiry_reference,
+    responsible_sm: formValues.responsible_sm,
+    currency: formValues.currency,
+    offer_reference_no: formValues.offer_reference_no,
+    plant_rating: formValues.plant_rating,
+    plant_location: formValues.plant_location,
+    enquiry_source: formValues.enquiry_source,
+    enquiry_category: formValues.enquiry_category,
+    offer_submission_planned_date: formValues.offer_submission_planned_date,
+    actual_offer_date: formValues.actual_offer_date,
+    conversion_rate: formValues.conversion_rate,
+    ahpl_offer_status: formValues.ahpl_offer_status,
+    customer_enquiry_status: formValues.customer_enquiry_status,
+    backlog_hot: formValues.backlog_hot,
+    remark: formValues.remark,
+    client_enq_receipt_date: formValues.client_enq_receipt_date
+  });
+
+  return apiCallWorkflow({
+    data: cleanedData,
+    workflowId: "208c9366-4924-11f1-8e18-b7ca19bb3690"
+  });
 };
