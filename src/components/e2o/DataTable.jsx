@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Upload, FileSpreadsheet, RefreshCcw, Edit2, FileText, Paperclip, Trash2, Loader2, ArrowLeftRight } from 'lucide-react';
 import { downloadTemplate } from '../../services/enquiryToOfferService';
 import { useBulkUpload } from '../../hooks/useBulkUpload';
@@ -7,6 +8,7 @@ import UploadModal from './UploadModal';
 import PreviewModal from './PreviewModal';
 
 export default function DataTable({ filters, dateRange, refreshTrigger }) {
+  const navigate = useNavigate();
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -176,7 +178,10 @@ export default function DataTable({ filters, dateRange, refreshTrigger }) {
           <p className="text-[14px] text-text-secondary">Managing engineering demand lifecycle</p>
         </div>
         <div className="flex items-center justify-end gap-3">
-          <button className="flex items-center gap-2 bg-primary hover:bg-primary-container text-white px-4 py-2 rounded-lg text-[14px] font-bold transition-colors">
+          <button 
+            onClick={() => navigate('/e2o/add')}
+            className="flex items-center gap-2 bg-primary hover:bg-primary-container text-white px-4 py-2 rounded-lg text-[14px] font-bold transition-colors cursor-pointer"
+          >
             <Plus className="w-4 h-4" />
             Add New
           </button>
