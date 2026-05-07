@@ -83,6 +83,9 @@ export default function DataTable({ filters, dateRange, refreshTrigger }) {
   // Add originalIndex to columns so we can map rows correctly since they are arrays
   const columnsWithIndex = columns.map((c, i) => ({ ...c, originalIndex: i }));
 
+  // Find the index of the "id" column so we can pass it to edit navigation
+  const idColIndex = columnsWithIndex.findIndex(c => c.colName.toLowerCase() === "id");
+
   const filteredCols = columnsWithIndex.filter(c =>
     !["Edit", "Delete", "View Docs", "Attach Docs", "Convert To Order", "id"].includes(c.colName) && c.colName.toLowerCase() !== "id"
   );
@@ -245,7 +248,17 @@ export default function DataTable({ filters, dateRange, refreshTrigger }) {
                             <td key={colIdx} className="px-6 py-3 h-[56px] align-middle bg-inherit">
                               <div className="flex items-center gap-2 text-text-secondary">
                                 <button title="Convert to Order" className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"><ArrowLeftRight className="w-4 h-4" /></button>
-                                <button title="Edit" className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"><Edit2 className="w-4 h-4" /></button>
+                                <button
+                                  title="Edit"
+                                  className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const rowId = idColIndex >= 0 ? row[idColIndex] : null;
+                                    if (rowId !== null && rowId !== undefined) {
+                                      navigate(`/e2o/edit/${rowId}`);
+                                    }
+                                  }}
+                                ><Edit2 className="w-4 h-4" /></button>
                                 <button title="View Docs" className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"><FileText className="w-4 h-4" /></button>
                                 <button title="Attach Docs" className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"><Paperclip className="w-4 h-4" /></button>
                                 <button title="Delete" className="p-1.5 hover:text-red-600 transition-colors hover:bg-red-50 rounded-md cursor-pointer"><Trash2 className="w-4 h-4" /></button>

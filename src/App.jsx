@@ -4,6 +4,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import EnquiryToOffer from './pages/EnquiryToOffer';
 import AddEnquiry from './pages/AddEnquiry';
+import EditEnquiry from './pages/EditEnquiry';
 import { ToastProvider } from './contexts/ToastContext';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/e2o" element={<EnquiryToOffer />} />
           <Route path="/e2o/add" element={<AddEnquiry />} />
+          <Route path="/e2o/edit/:id" element={<EditEnquiry />} />
         </Routes>
 
         <Footer />
