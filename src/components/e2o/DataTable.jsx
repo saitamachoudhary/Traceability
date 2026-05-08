@@ -7,9 +7,11 @@ import { useEnquiryTable } from '../../hooks/useEnquiryTable';
 import { useDeleteEnquiry } from '../../hooks/useDeleteEnquiry';
 import { useConvertToOrder } from '../../hooks/useConvertToOrder';
 import { useUploadDocument } from '../../hooks/useUploadDocument';
+import { useDocumentViewer } from '../../hooks/useDocumentViewer';
 import PreviewModal from './PreviewModal';
 import ConfirmationModal from '../common/ConfirmationModal';
 import FileUploadModal from './FileUploadModal';
+import ViewDocumentModal from '../ViewDocumentModal';
 
 export default function DataTable({ filters, dateRange, refreshTrigger, onRefresh }) {
   const navigate = useNavigate();
@@ -70,6 +72,15 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
     handleSave: handleDocSave
   } = useUploadDocument(refresh);  // table-only refresh for document upload
 
+  const {
+    isModalOpen: isViewDocModalOpen,
+    documentUrl,
+    isDownloading,
+    openViewModal,
+    closeModal: closeViewDocModal,
+    handleDownload: handleDocDownload
+  } = useDocumentViewer();
+
   const handleDownload = async () => {
     setDownloadLoading(true);
     try {
@@ -119,6 +130,11 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
 
   // Find the index of the "id" column so we can pass it to edit navigation
   const idColIndex = columnsWithIndex.findIndex(c => c.colName.toLowerCase() === "id");
+
+  // Find the index of the "view_docs" / "View Docs" column for document path
+  const viewDocsColIndex = columnsWithIndex.findIndex(
+    c => c.colName.toLowerCase().replace(/[\s_]/g, '') === 'viewdocs'
+  );
 
   const filteredCols = columnsWithIndex.filter(c =>
     !["Edit", "Delete", "View Docs", "Attach Docs", "Convert To Order", "id"].includes(c.colName) && c.colName.toLowerCase() !== "id"
@@ -260,116 +276,126 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
               </div>
             )}
             <table className={`w-full text-left border-collapse min-w-max transition-opacity duration-300 ${loading ? 'opacity-60' : 'opacity-100'}`}>
-            <thead>
-              <tr className="bg-surface-container border-b border-border-outline sticky top-0 z-20">
-                {finalCols.map((col, idx) => (
-                  <th
-                    key={idx}
-                    className="px-6 py-4 text-[11px] font-bold text-text-secondary uppercase tracking-wider whitespace-nowrap bg-surface-container"
-                    style={getStickyStyle(col.colName, true)}
-                  >
-                    {col.colName}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedData.length > 0 ? (
-                paginatedData.map((row, rowIdx) => {
-                  const globalIndex = startIndex + rowIdx;
-                  const isSelected = selectedRowIndex === globalIndex;
-                  return (
-                    <tr
-                      key={globalIndex}
-                      onClick={() => setSelectedRowIndex(globalIndex)}
-                      className={`border-b border-border-outline/50 hover:bg-blue-50 transition-colors cursor-pointer ${isSelected ? 'border-l-4 border-l-blue-600 bg-blue-50' : (rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#F9FAFB]')
-                        }`}
+              <thead>
+                <tr className="bg-surface-container border-b border-border-outline sticky top-0 z-20">
+                  {finalCols.map((col, idx) => (
+                    <th
+                      key={idx}
+                      className="px-6 py-4 text-[11px] font-bold text-text-secondary uppercase tracking-wider whitespace-nowrap bg-surface-container"
+                      style={getStickyStyle(col.colName, true)}
                     >
-                      {finalCols.map((col, colIdx) => {
-                        if (col.isAction) {
+                      {col.colName}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedData.length > 0 ? (
+                  paginatedData.map((row, rowIdx) => {
+                    const globalIndex = startIndex + rowIdx;
+                    const isSelected = selectedRowIndex === globalIndex;
+                    return (
+                      <tr
+                        key={globalIndex}
+                        onClick={() => setSelectedRowIndex(globalIndex)}
+                        className={`border-b border-border-outline/50 hover:bg-blue-50 transition-colors cursor-pointer ${isSelected ? 'border-l-4 border-l-blue-600 bg-blue-50' : (rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#F9FAFB]')
+                          }`}
+                      >
+                        {finalCols.map((col, colIdx) => {
+                          if (col.isAction) {
+                            return (
+                              <td key={colIdx} className="px-6 py-3 h-[56px] align-middle bg-inherit">
+                                <div className="flex items-center gap-2 text-text-secondary">
+                                  <button
+                                    title="Convert to Order"
+                                    className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer disabled:opacity-50"
+                                    disabled={isConverting}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const rowId = idColIndex >= 0 ? row[idColIndex] : null;
+                                      if (rowId !== null && rowId !== undefined) {
+                                        handleConvertToOrder(rowId);
+                                      }
+                                    }}
+                                  >
+                                    {convertingId === (idColIndex >= 0 ? row[idColIndex] : null) ? (
+                                      <RefreshCcw className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      <ArrowLeftRight className="w-4 h-4" />
+                                    )}
+                                  </button>
+                                  <button
+                                    title="Edit"
+                                    className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const rowId = idColIndex >= 0 ? row[idColIndex] : null;
+                                      if (rowId !== null && rowId !== undefined) {
+                                        navigate(`/e2o/edit/${rowId}`);
+                                      }
+                                    }}
+                                  ><Edit2 className="w-4 h-4" /></button>
+                                  <button
+                                    title="View Docs"
+                                    className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const docPath = viewDocsColIndex >= 0 ? row[viewDocsColIndex] : null;
+                                      openViewModal(docPath);
+                                    }}
+                                  >
+                                    <FileText className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    title="Attach Docs"
+                                    className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const rowId = idColIndex >= 0 ? row[idColIndex] : null;
+                                      if (rowId !== null && rowId !== undefined) {
+                                        openDocModal(rowId);
+                                      }
+                                    }}
+                                  ><Paperclip className="w-4 h-4" /></button>
+                                  <button
+                                    title="Delete"
+                                    className="p-1.5 hover:text-red-600 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const rowId = idColIndex >= 0 ? row[idColIndex] : null;
+                                      if (rowId !== null && rowId !== undefined) {
+                                        openDeleteModal(rowId);
+                                      }
+                                    }}
+                                  ><Trash2 className="w-4 h-4" /></button>
+                                </div>
+                              </td>
+                            );
+                          }
+
+                          const val = row[col.originalIndex];
                           return (
-                            <td key={colIdx} className="px-6 py-3 h-[56px] align-middle bg-inherit">
-                              <div className="flex items-center gap-2 text-text-secondary">
-                                <button 
-                                  title="Convert to Order" 
-                                  className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer disabled:opacity-50"
-                                  disabled={isConverting}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const rowId = idColIndex >= 0 ? row[idColIndex] : null;
-                                    if (rowId !== null && rowId !== undefined) {
-                                      handleConvertToOrder(rowId);
-                                    }
-                                  }}
-                                >
-                                  {convertingId === (idColIndex >= 0 ? row[idColIndex] : null) ? (
-                                    <RefreshCcw className="w-4 h-4 animate-spin" />
-                                  ) : (
-                                    <ArrowLeftRight className="w-4 h-4" />
-                                  )}
-                                </button>
-                                <button
-                                  title="Edit"
-                                  className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const rowId = idColIndex >= 0 ? row[idColIndex] : null;
-                                    if (rowId !== null && rowId !== undefined) {
-                                      navigate(`/e2o/edit/${rowId}`);
-                                    }
-                                  }}
-                                ><Edit2 className="w-4 h-4" /></button>
-                                <button title="View Docs" className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"><FileText className="w-4 h-4" /></button>
-                                <button
-                                  title="Attach Docs"
-                                  className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const rowId = idColIndex >= 0 ? row[idColIndex] : null;
-                                    if (rowId !== null && rowId !== undefined) {
-                                      openDocModal(rowId);
-                                    }
-                                  }}
-                                ><Paperclip className="w-4 h-4" /></button>
-                                <button
-                                  title="Delete"
-                                  className="p-1.5 hover:text-red-600 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const rowId = idColIndex >= 0 ? row[idColIndex] : null;
-                                    if (rowId !== null && rowId !== undefined) {
-                                      openDeleteModal(rowId);
-                                    }
-                                  }}
-                                ><Trash2 className="w-4 h-4" /></button>
-                              </div>
+                            <td
+                              key={colIdx}
+                              className="px-6 py-3 h-[56px] align-middle text-[13px] text-text-primary whitespace-nowrap bg-inherit"
+                              style={getStickyStyle(col.colName, false)}
+                            >
+                              {renderCell(val, col.colName)}
                             </td>
                           );
-                        }
-
-                        const val = row[col.originalIndex];
-                        return (
-                          <td
-                            key={colIdx}
-                            className="px-6 py-3 h-[56px] align-middle text-[13px] text-text-primary whitespace-nowrap bg-inherit"
-                            style={getStickyStyle(col.colName, false)}
-                          >
-                            {renderCell(val, col.colName)}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan={finalCols.length || 1} className="px-6 py-8 text-center text-text-secondary bg-white">
-                    No data available
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                        })}
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={finalCols.length || 1} className="px-6 py-8 text-center text-text-secondary bg-white">
+                      No data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </>
         )}
       </div>
@@ -466,6 +492,15 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
         primaryLabel="Upload & Save"
         isUploading={isDocUploading}
         isSaving={isDocSaving}
+      />
+
+      {/* View Document Modal */}
+      <ViewDocumentModal
+        isOpen={isViewDocModalOpen}
+        documentUrl={documentUrl}
+        isDownloading={isDownloading}
+        onClose={closeViewDocModal}
+        onDownload={handleDocDownload}
       />
     </div>
   );
