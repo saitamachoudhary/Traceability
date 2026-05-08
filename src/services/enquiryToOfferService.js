@@ -187,3 +187,28 @@ export const deleteEnquiryRow = async (id) => {
     }
   });
 };
+
+export const convertToOrder = async (id) => {
+  return apiCallWorkflow({
+    data: {
+      appId: "af853ae1-c513-11f0-8899-af2975f8a698"
+    },
+    workflowId: "9b875474-491e-11f1-8e18-6f23cecef47a",
+    variable: {
+      convert_to_order_id: id
+    }
+  });
+};
+
+export const saveUploadedDocument = async (rowId, documentPath) => {
+  return apiCallWorkflow({
+    workflowId: "ffa146fd-4aa3-11f1-97a8-394b0dd5d7ce",
+    variable: {
+      project_id_for_doc_insert: rowId
+    },
+    data: {
+      appId: "af853ae1-c513-11f0-8899-af2975f8a698",
+      document: documentPath
+    }
+  });
+};

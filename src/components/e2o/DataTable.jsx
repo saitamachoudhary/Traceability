@@ -5,9 +5,12 @@ import { downloadTemplate } from '../../services/enquiryToOfferService';
 import { useBulkUpload } from '../../hooks/useBulkUpload';
 import { useEnquiryTable } from '../../hooks/useEnquiryTable';
 import { useDeleteEnquiry } from '../../hooks/useDeleteEnquiry';
+import { useConvertToOrder } from '../../hooks/useConvertToOrder';
+import { useUploadDocument } from '../../hooks/useUploadDocument';
 import UploadModal from './UploadModal';
 import PreviewModal from './PreviewModal';
 import ConfirmationModal from '../common/ConfirmationModal';
+import DocumentUploadModal from './DocumentUploadModal';
 
 export default function DataTable({ filters, dateRange, refreshTrigger, onRefresh }) {
   const navigate = useNavigate();
@@ -49,6 +52,24 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
     closeDeleteModal,
     handleDelete
   } = useDeleteEnquiry(onRefresh || refresh);
+
+  const {
+    isConverting,
+    convertingId,
+    handleConvertToOrder
+  } = useConvertToOrder(onRefresh || refresh);
+
+  const {
+    file: docFile,
+    isUploading: isDocUploading,
+    isSaving: isDocSaving,
+    isModalOpen: isDocModalOpen,
+    openModal: openDocModal,
+    closeModal: closeDocModal,
+    handleFileSelect: handleDocFileSelect,
+    handleRemoveFile: handleDocRemoveFile,
+    handleSave: handleDocSave
+  } = useUploadDocument(onRefresh || refresh);
 
   const handleDownload = async () => {
     setDownloadLoading(true);
@@ -266,7 +287,24 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
                           return (
                             <td key={colIdx} className="px-6 py-3 h-[56px] align-middle bg-inherit">
                               <div className="flex items-center gap-2 text-text-secondary">
-                                <button title="Convert to Order" className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"><ArrowLeftRight className="w-4 h-4" /></button>
+                                <button 
+                                  title="Convert to Order" 
+                                  className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer disabled:opacity-50"
+                                  disabled={isConverting}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const rowId = idColIndex >= 0 ? row[idColIndex] : null;
+                                    if (rowId !== null && rowId !== undefined) {
+                                      handleConvertToOrder(rowId);
+                                    }
+                                  }}
+                                >
+                                  {convertingId === (idColIndex >= 0 ? row[idColIndex] : null) ? (
+                                    <RefreshCcw className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <ArrowLeftRight className="w-4 h-4" />
+                                  )}
+                                </button>
                                 <button
                                   title="Edit"
                                   className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"
@@ -279,7 +317,17 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
                                   }}
                                 ><Edit2 className="w-4 h-4" /></button>
                                 <button title="View Docs" className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"><FileText className="w-4 h-4" /></button>
-                                <button title="Attach Docs" className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"><Paperclip className="w-4 h-4" /></button>
+                                <button
+                                  title="Attach Docs"
+                                  className="p-1.5 hover:text-primary transition-colors hover:bg-surface-container rounded-md cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const rowId = idColIndex >= 0 ? row[idColIndex] : null;
+                                    if (rowId !== null && rowId !== undefined) {
+                                      openDocModal(rowId);
+                                    }
+                                  }}
+                                ><Paperclip className="w-4 h-4" /></button>
                                 <button
                                   title="Delete"
                                   className="p-1.5 hover:text-red-600 transition-colors hover:bg-red-50 rounded-md cursor-pointer"
@@ -394,6 +442,17 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
         onClose={closeDeleteModal}
         onConfirm={handleDelete}
         isDeleting={isDeleting}
+      />
+
+      <DocumentUploadModal
+        isOpen={isDocModalOpen}
+        onClose={closeDocModal}
+        file={docFile}
+        onFileSelect={handleDocFileSelect}
+        onRemoveFile={handleDocRemoveFile}
+        onSave={handleDocSave}
+        isUploading={isDocUploading}
+        isSaving={isDocSaving}
       />
     </div>
   );
