@@ -7,10 +7,9 @@ import { useEnquiryTable } from '../../hooks/useEnquiryTable';
 import { useDeleteEnquiry } from '../../hooks/useDeleteEnquiry';
 import { useConvertToOrder } from '../../hooks/useConvertToOrder';
 import { useUploadDocument } from '../../hooks/useUploadDocument';
-import UploadModal from './UploadModal';
 import PreviewModal from './PreviewModal';
 import ConfirmationModal from '../common/ConfirmationModal';
-import DocumentUploadModal from './DocumentUploadModal';
+import FileUploadModal from './FileUploadModal';
 
 export default function DataTable({ filters, dateRange, refreshTrigger, onRefresh }) {
   const navigate = useNavigate();
@@ -69,7 +68,7 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
     handleFileSelect: handleDocFileSelect,
     handleRemoveFile: handleDocRemoveFile,
     handleSave: handleDocSave
-  } = useUploadDocument(onRefresh || refresh);
+  } = useUploadDocument(refresh);  // table-only refresh for document upload
 
   const handleDownload = async () => {
     setDownloadLoading(true);
@@ -107,7 +106,11 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
     await handleSave(() => {
       setIsPreviewModalOpen(false);
       reset();
-      refresh();
+      if (onRefresh) {
+        onRefresh();   // triggers full dashboard refresh (KPIs, charts, filters, table)
+      } else {
+        refresh();     // fallback: table only
+      }
     });
   };
 
@@ -417,13 +420,18 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
         </div>
       )}
 
-      <UploadModal
+      {/* Bulk Upload Modal */}
+      <FileUploadModal
         isOpen={isUploadModalOpen}
         onClose={handleCloseUploadModal}
         file={file}
         onFileSelect={handleFileSelect}
         onRemoveFile={reset}
-        onPreview={handlePreviewClick}
+        onPrimaryAction={handlePreviewClick}
+        title="Bulk Upload"
+        acceptedExts={['xlsx']}
+        acceptedLabel="XLSX (Max 25MB)"
+        primaryLabel="Preview & Save"
         isUploading={isUploading}
         uploadProgress={uploadProgress}
         isPreviewLoading={isPreviewLoading}
@@ -444,13 +452,18 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
         isDeleting={isDeleting}
       />
 
-      <DocumentUploadModal
+      {/* Document Upload Modal */}
+      <FileUploadModal
         isOpen={isDocModalOpen}
         onClose={closeDocModal}
         file={docFile}
         onFileSelect={handleDocFileSelect}
         onRemoveFile={handleDocRemoveFile}
-        onSave={handleDocSave}
+        onPrimaryAction={handleDocSave}
+        title="Upload Document"
+        acceptedExts={['pdf', 'png', 'jpg', 'jpeg', 'doc', 'docx', 'xlsx', 'xls']}
+        acceptedLabel="PDF, PNG, JPG, JPEG, DOC, DOCX, XLSX, XLS (Max 25MB)"
+        primaryLabel="Upload & Save"
         isUploading={isDocUploading}
         isSaving={isDocSaving}
       />
