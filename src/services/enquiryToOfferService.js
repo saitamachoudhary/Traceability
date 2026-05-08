@@ -175,3 +175,15 @@ export const saveEnquiryData = async (formValues) => {
     workflowId: "208c9366-4924-11f1-8e18-b7ca19bb3690"
   });
 };
+
+export const deleteEnquiryRow = async (id) => {
+  return apiCallWorkflow({
+    data: {
+      appId: "af853ae1-c513-11f0-8899-af2975f8a698"
+    },
+    workflowId: "ea799a0d-d211-11f0-bead-af6e54058ecd",
+    variable: {
+      Id_for_delete_offer: id
+    }
+  });
+};

@@ -53,7 +53,7 @@ export const useEnquiryChart = (filters, refreshTrigger = 0) => {
     return () => {
       isMounted = false;
     };
-  }, [filters.date_from, filters.date_to, filters.customer, filters.projects, filters.packages, refreshTrigger]);
+  }, [filters.date_from, filters.date_to, refreshTrigger]);
 
   return { ...chartData, isLoading, error };
 };

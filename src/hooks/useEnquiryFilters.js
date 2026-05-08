@@ -4,7 +4,7 @@ import { getCustomers, getProjects, getPackages } from '../services/enquiryToOff
 const mapDropdown = (data) =>
   Array.isArray(data) ? data.map(item => item[0]).filter(Boolean) : [];
 
-export const useEnquiryFilters = () => {
+export const useEnquiryFilters = (refreshTrigger = 0) => {
   const [filters, setFilters] = useState({
     customer: "",
     projects: "",
@@ -41,7 +41,7 @@ export const useEnquiryFilters = () => {
 
   useEffect(() => {
     fetchAll({ customer: "", projects: "", packages: "" });
-  }, [fetchAll]);
+  }, [fetchAll, refreshTrigger]);
 
   const updateFilter = async (key, value) => {
     const updated = { ...filters, [key]: value };
@@ -55,5 +55,9 @@ export const useEnquiryFilters = () => {
     await fetchAll(cleared);
   };
 
-  return { filters, options, isLoading, updateFilter, resetFilters };
+  const refreshFilters = async () => {
+    await fetchAll(filters);
+  };
+
+  return { filters, options, isLoading, updateFilter, resetFilters, refreshFilters };
 };

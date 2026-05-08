@@ -14,10 +14,14 @@ export default function EnquiryToOffer() {
   });
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const { filters, options, isLoading, updateFilter, resetFilters } = useEnquiryFilters();
+  const { filters, options, isLoading, updateFilter, resetFilters } = useEnquiryFilters(refreshTrigger);
 
   const handleGoBack = () => {
     navigate("/");
+  };
+
+  const triggerRefresh = () => {
+    setRefreshTrigger(prev => prev + 1);
   };
 
   const resetEnquiryPage = () => {
@@ -30,21 +34,26 @@ export default function EnquiryToOffer() {
 
   return (
     <main className="flex-1 w-full px-8 flex flex-col py-8 gap-6">
-      <WorkflowHeader 
-        dateRange={dateRange} 
-        setDateRange={setDateRange} 
+      <WorkflowHeader
+        dateRange={dateRange}
+        setDateRange={setDateRange}
         onGoBack={handleGoBack}
         onReset={resetEnquiryPage}
       />
-      <KPICards filters={combinedFilters} refreshTrigger={refreshTrigger} />
-      <FilterToolbar 
-        filters={filters} 
-        options={options} 
-        isLoading={isLoading} 
-        updateFilter={updateFilter} 
-        resetFilters={resetFilters} 
+      <KPICards filters={dateRange} refreshTrigger={refreshTrigger} />
+      <FilterToolbar
+        filters={filters}
+        options={options}
+        isLoading={isLoading}
+        updateFilter={updateFilter}
+        resetFilters={resetFilters}
       />
-      <DataTable filters={filters} dateRange={dateRange} refreshTrigger={refreshTrigger} />
+      <DataTable 
+        filters={filters} 
+        dateRange={dateRange} 
+        refreshTrigger={refreshTrigger} 
+        onRefresh={triggerRefresh}
+      />
     </main>
   );
 }
