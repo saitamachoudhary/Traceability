@@ -9,11 +9,18 @@ export default function KPICards({ filters, refreshTrigger }) {
   const { data, isLoading, error } = useEnquiryKpi(filters || { date_from: "", date_to: "" }, refreshTrigger);
   const { categories, series, isLoading: isChartLoading } = useEnquiryChart(filters || { date_from: "", date_to: "" }, refreshTrigger);
 
+  // const formatNumber = (num) => {
+  //   if (num === 0 || num === null || num === undefined) return '0';
+  //   // if (num >= 1000000) return (num / 1000000).toFixed(4) + 'M';
+  //   // if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+  //   if (Number(num)) return num;
+  //   return num.toLocaleString();
+  // };
+
   const formatNumber = (num) => {
     if (num === 0 || num === null || num === undefined) return '0';
-    if (num >= 1000000) return (num / 1000000).toFixed(4) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-    return num.toLocaleString();
+    if (!Number(num)) return '0';
+    return Number(num).toLocaleString('en-US');
   };
 
   const formatPercent = (num) => {
@@ -81,7 +88,7 @@ export default function KPICards({ filters, refreshTrigger }) {
     <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 grid-rows-none lg:grid-rows-[auto_auto] gap-6">
 
       <div className="lg:col-span-2 md:col-span-2 bg-[#ffffff] rounded-[16px] p-6 shadow-[var(--shadow-default)] hover:shadow-[var(--shadow-hover)] transition-shadow">
-        <h3 className="text-[12px] font-bold text-text-secondary uppercase tracking-wider mb-2">Total Offer Value</h3>
+        <h3 className="text-[12px] font-bold text-text-secondary uppercase tracking-wider mb-2">Total Offer Value (MINR)</h3>
         <div className="text-[32px] font-bold text-primary">{renderValue(data.totalOffer, formatNumber)}</div>
       </div>
 

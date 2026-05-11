@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Calendar, RotateCcw, ArrowLeft } from 'lucide-react';
 import DateRangePickerModal from './DateRangePickerModal';
 
-export default function WorkflowHeader({ dateRange, setDateRange, onGoBack, onReset }) {
+export default function WorkflowHeader({ title, dateRange, setDateRange, onGoBack, onReset }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleApplyRange = (start, end) => {
@@ -31,7 +31,7 @@ export default function WorkflowHeader({ dateRange, setDateRange, onGoBack, onRe
     <>
       <div className="w-full h-[56px] bg-[#0f3d66] rounded-xl flex items-center justify-between px-6 shadow-sm">
         <div className="flex items-center gap-6">
-          <h1 className="text-white font-bold text-[18px] uppercase tracking-wide">ENQUIRY TO OFFER</h1>
+          <h1 className="text-white font-bold text-[18px] uppercase tracking-wide">{title}</h1>
           <button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 bg-[#1a4f80] text-blue-100 px-3 py-1.5 rounded-full text-sm font-medium border border-blue-400/20 hover:bg-[#1f5c94] transition-colors cursor-pointer"

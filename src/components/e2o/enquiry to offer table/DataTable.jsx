@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Upload, FileSpreadsheet, RefreshCcw, Edit2, FileText, Paperclip, Trash2, Loader2, ArrowLeftRight } from 'lucide-react';
-import { downloadTemplate } from '../../services/enquiryToOfferService';
-import { useBulkUpload } from '../../hooks/useBulkUpload';
-import { useEnquiryTable } from '../../hooks/useEnquiryTable';
-import { useDeleteEnquiry } from '../../hooks/useDeleteEnquiry';
-import { useConvertToOrder } from '../../hooks/useConvertToOrder';
-import { useUploadDocument } from '../../hooks/useUploadDocument';
-import { useDocumentViewer } from '../../hooks/useDocumentViewer';
-import PreviewModal from './PreviewModal';
-import ConfirmationModal from '../common/ConfirmationModal';
-import FileUploadModal from './FileUploadModal';
-import ViewDocumentModal from '../ViewDocumentModal';
+import { Plus, Upload, FileSpreadsheet, RefreshCcw, Edit2, FileText, Paperclip, Trash2, Loader2, ArrowLeftRight, Download } from 'lucide-react';
+import { downloadTemplate } from '../../../services/enquiryToOfferService';
+import { useBulkUpload } from '../../../hooks/useBulkUpload';
+import { useEnquiryTable } from '../../../hooks/useEnquiryTable';
+import { useDeleteEnquiry } from '../../../hooks/useDeleteEnquiry';
+import { useConvertToOrder } from '../../../hooks/useConvertToOrder';
+import { useUploadDocument } from '../../../hooks/useUploadDocument';
+import { useDocumentViewer } from '../../../hooks/useDocumentViewer';
+import PreviewModal from '../PreviewModal';
+import ConfirmationModal from '../../common/ConfirmationModal';
+import FileUploadModal from '../FileUploadModal';
+import ViewDocumentModal from '../../ViewDocumentModal';
+import { downloadExcel } from '../../../utils/downloadExcel';
 
 export default function DataTable({ filters, dateRange, refreshTrigger, onRefresh }) {
   const navigate = useNavigate();
@@ -81,7 +82,7 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
     handleDownload: handleDocDownload
   } = useDocumentViewer();
 
-  const handleDownload = async () => {
+  const handleDownloadTemplate = async () => {
     setDownloadLoading(true);
     try {
       await downloadTemplate();
@@ -90,6 +91,10 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
     } finally {
       setDownloadLoading(false);
     }
+  };
+
+  const handleDownloadData = () => {
+    downloadExcel(columns, data);
   };
 
   const handleOpenUploadModal = () => {
@@ -240,20 +245,26 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
           </button>
           <button
             onClick={handleOpenUploadModal}
-            className="flex items-center gap-2 bg-white border border-border-outline hover:bg-surface-container text-text-primary px-4 py-2 rounded-lg text-[14px] font-medium transition-colors">
+            className="flex items-center gap-2 bg-white border border-border-outline hover:bg-surface-container text-text-primary px-4 py-2 rounded-lg text-[14px] font-medium transition-colors cursor-pointer">
             <Upload className="w-4 h-4 text-text-secondary" />
             Bulk Upload
           </button>
           <button
-            onClick={handleDownload}
+            onClick={handleDownloadTemplate}
             disabled={downloadLoading}
-            className="flex items-center gap-2 bg-white border border-border-outline hover:bg-surface-container text-text-primary px-4 py-2 rounded-lg text-[14px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            className="flex items-center gap-2 bg-white border border-border-outline hover:bg-surface-container text-text-primary px-4 py-2 rounded-lg text-[14px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
             {downloadLoading ? (
               <RefreshCcw className="w-4 h-4 text-text-secondary animate-spin" />
             ) : (
               <FileSpreadsheet className="w-4 h-4 text-text-secondary" />
             )}
             {downloadLoading ? "Downloading..." : "Template"}
+          </button>
+          <button
+            onClick={handleDownloadData}
+            className="flex items-center gap-2 bg-white border border-border-outline hover:bg-surface-container text-text-primary px-4 py-2 rounded-lg text-[14px] font-medium transition-colors cursor-pointer">
+            <Download className="w-4 h-4 text-text-secondary" />
+            Download Data
           </button>
         </div>
       </div>

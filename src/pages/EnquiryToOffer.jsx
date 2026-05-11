@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import WorkflowHeader from '../components/e2o/WorkflowHeader';
 import KPICards from '../components/e2o/KPICards';
 import FilterToolbar from '../components/e2o/FilterToolbar';
-import DataTable from '../components/e2o/DataTable';
+import DataTable from '../components/e2o/enquiry to offer table/DataTable';
 import { useEnquiryFilters } from '../hooks/useEnquiryFilters';
 
 export default function EnquiryToOffer() {
@@ -35,6 +35,7 @@ export default function EnquiryToOffer() {
   return (
     <main className="flex-1 w-full px-8 flex flex-col py-8 gap-6">
       <WorkflowHeader
+        title="ENQUIRY TO OFFER"
         dateRange={dateRange}
         setDateRange={setDateRange}
         onGoBack={handleGoBack}
