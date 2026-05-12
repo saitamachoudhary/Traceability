@@ -126,12 +126,12 @@ export default function KPICards({ filters, refreshTrigger }) {
           </div>
         )}
 
-        <div className="flex justify-between items-center text-[12px] font-medium bg-surface-container/50 -mx-6 -mb-6 px-6 py-4 border-t border-border-outline/50 mt-auto">
+        {/* <div className="flex justify-between items-center text-[12px] font-medium bg-surface-container/50 -mx-6 -mb-6 px-6 py-4 border-t border-border-outline/50 mt-auto">
           <span className="text-text-secondary">Overall Conversion Rate</span>
           <span className="text-primary font-bold text-[14px]">
             {isLoading ? <div className="h-4 w-12 bg-gray-200 animate-pulse rounded inline-block"></div> : formatPercent(data.conversion)}
           </span>
-        </div>
+        </div> */}
       </div>
 
       <div className="lg:col-span-2 md:col-span-2 bg-[#ffffff] rounded-[16px] p-6 shadow-[var(--shadow-default)] hover:shadow-[var(--shadow-hover)] transition-shadow">
