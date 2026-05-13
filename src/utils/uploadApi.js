@@ -90,3 +90,29 @@ export const saveUploadedData = async (filePath) => {
 
   return await response.json();
 };
+
+export const saveO2SUploadedData = async (filePath) => {
+  const formData = new FormData();
+
+  formData.append(
+    "data",
+    JSON.stringify({
+      data: {
+        appId: "af853ae1-c513-11f0-8899-af2975f8a698",
+        filePath: filePath,
+        skip: 0
+      },
+      workflowId: "580eae5e-d4c8-11f0-911f-5f25d94b6664"
+    })
+  );
+
+  const response = await fetch(WORKFLOW_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${BEARER_TOKEN}`
+    },
+    body: formData
+  });
+
+  return await response.json();
+};

@@ -3,7 +3,7 @@ import { uploadFile, saveUploadedData } from '../utils/uploadApi';
 import { getFilePreview } from '../services/enquiryToOfferService';
 import { useToast } from '../contexts/ToastContext';
 
-export const useBulkUpload = () => {
+export const useBulkUpload = (customSaveFn) => {
   const [file, setFile] = useState(null);
   const [filePath, setFilePath] = useState("");
   const [previewData, setPreviewData] = useState(null);
@@ -54,7 +54,7 @@ export const useBulkUpload = () => {
 
     try {
       setIsSaving(true);
-      const res = await saveUploadedData(filePath);
+      const res = customSaveFn ? await customSaveFn(filePath) : await saveUploadedData(filePath);
 
       if (res?.data?.data?.validationMessage) {
         const isError = res.data.data.validationStatusCode === 400;

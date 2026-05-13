@@ -1,8 +1,57 @@
+import { useState } from 'react';
 import { Plus, Upload, FileText, Pencil, Trash2, Download, RefreshCcw } from 'lucide-react';
 import { downloadExcel } from '../../utils/downloadExcel';
 import { useDownloadTemplate } from '../../hooks/useDownloadTemplate';
+import { useBulkUpload } from '../../hooks/useBulkUpload';
+import { saveO2SUploadedData } from '../../utils/uploadApi';
+import FileUploadModal from '../e2o/FileUploadModal';
+import PreviewModal from '../e2o/PreviewModal';
 
 export default function DataTable() {
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+
+  const {
+    file,
+    previewData,
+    isUploading,
+    uploadProgress,
+    isPreviewLoading,
+    isSaving,
+    handleFileSelect,
+    handlePreview,
+    handleSave,
+    reset
+  } = useBulkUpload(saveO2SUploadedData);
+
+  const handleOpenUploadModal = () => {
+    reset();
+    setIsUploadModalOpen(true);
+  };
+
+  const handleCloseUploadModal = () => {
+    setIsUploadModalOpen(false);
+    reset();
+  };
+
+  const handlePreviewClick = async () => {
+    await handlePreview();
+    setIsUploadModalOpen(false);
+    setIsPreviewModalOpen(true);
+  };
+
+  const handleClosePreviewModal = () => {
+    setIsPreviewModalOpen(false);
+    reset();
+  };
+
+  const handleFinalSave = async () => {
+    await handleSave(() => {
+      setIsPreviewModalOpen(false);
+      reset();
+    });
+  };
+
   const tableData = [
     {
       id: 'PRJ-2024-X102',
@@ -99,7 +148,9 @@ export default function DataTable() {
             <Plus className="w-4 h-4" />
             Add New
           </button> */}
-          <button className="flex items-center gap-2 bg-white border border-border-outline hover:bg-surface-container text-text-primary px-4 py-2 rounded-lg text-[14px] font-medium transition-colors cursor-pointer">
+          <button 
+            onClick={handleOpenUploadModal}
+            className="flex items-center gap-2 bg-white border border-border-outline hover:bg-surface-container text-text-primary px-4 py-2 rounded-lg text-[14px] font-medium transition-colors cursor-pointer">
             <Upload className="w-4 h-4 text-text-secondary" />
             Bulk Upload
           </button>
@@ -171,6 +222,31 @@ export default function DataTable() {
           </tbody>
         </table>
       </div>
+      {/* Bulk Upload Modal */}
+      <FileUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={handleCloseUploadModal}
+        file={file}
+        onFileSelect={handleFileSelect}
+        onRemoveFile={reset}
+        onPrimaryAction={handlePreviewClick}
+        title="Bulk Upload"
+        acceptedExts={['xlsx']}
+        acceptedLabel="XLSX (Max 25MB)"
+        primaryLabel="Preview & Save"
+        isUploading={isUploading}
+        uploadProgress={uploadProgress}
+        isPreviewLoading={isPreviewLoading}
+      />
+
+      {/* Preview Modal */}
+      <PreviewModal
+        isOpen={isPreviewModalOpen}
+        onClose={handleClosePreviewModal}
+        onSave={handleFinalSave}
+        previewData={previewData}
+        isSaving={isSaving}
+      />
     </div>
   );
 }
