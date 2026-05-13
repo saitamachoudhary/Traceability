@@ -1,5 +1,6 @@
 import { callWorkflow } from '../utils/workflowAPi';
-import { apiClientWithVariable } from '../utils/apiClient';
+import { apiClientWithVariable, callWorkflowAPI as apiCallWorkflow } from '../utils/apiClient';
+import { removeEmptyFields } from '../utils/removeEmptyFields';
 
 const normalizeValue = (value) => {
   if (value === "No Data" || value === null || value === undefined || value === "") {
@@ -74,6 +75,41 @@ export const fetchO2STable = (filters) => {
       date_from: filters?.date_from || "",
       project: filters?.projects || "",
       customer: filters?.customer || ""
+    }
+  });
+};
+
+export const getO2SEditData = async (id) => {
+  return apiCallWorkflow({
+    data: {},
+    workflowId: "c7b9c5b7-4deb-11f1-bc29-71ebffa79f1c",
+    variable: {
+      id_edit_shipment: id
+    }
+  });
+};
+
+export const saveO2SEditData = async (id, formValues) => {
+  const cleanedData = removeEmptyFields({
+    appId: "af853ae1-c513-11f0-8899-af2975f8a698",
+    oi_month: formValues.oi_month,
+    scope_description: formValues.scope_description,
+    location_hip_hib: formValues.location_hip_hib,
+    cogsII_fcst_act_comt_tbc: formValues.cogsII_fcst_act_comt_tbc,
+    raw_material_material_receipt_grn_planned: formValues.raw_material_material_receipt_grn_planned,
+    expected_delivery_date: formValues.expected_delivery_date,
+    bom_planned_days: formValues.bom_planned_days,
+    pr_planned_days: formValues.pr_planned_days,
+    manufacturing_planned_days: formValues.manufacturing_planned_days,
+    placement_planned_days: formValues.placement_planned_days,
+    remarks: formValues.remarks
+  });
+
+  return apiCallWorkflow({
+    data: cleanedData,
+    workflowId: "2f41f12c-dcb4-11f0-a2fd-b56674ef8b8c",
+    variable: {
+      id_edit_shipment: id
     }
   });
 };

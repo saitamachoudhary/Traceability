@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Upload, FileText, Pencil, Trash2, Download, RefreshCcw, Loader2 } from 'lucide-react';
 import { downloadExcel } from '../../utils/downloadExcel';
 import { useDownloadTemplate } from '../../hooks/useDownloadTemplate';
@@ -9,6 +10,7 @@ import FileUploadModal from '../e2o/FileUploadModal';
 import PreviewModal from '../e2o/PreviewModal';
 
 export default function DataTable({ filters, dateRange, refreshTrigger, onRefresh }) {
+  const navigate = useNavigate();
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -100,8 +102,9 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
   };
 
   const columnsWithIndex = columns.map((c, i) => ({ ...c, originalIndex: i }));
+  const idColIndex = columnsWithIndex.findIndex(c => c.colName.toLowerCase() === "id");
   const filteredCols = columnsWithIndex.filter(c => 
-    !["Edit", "Delete"].includes(c.colName)
+    !["Edit", "Delete"].includes(c.colName) && c.colName.toLowerCase() !== "id"
   );
   
   const finalCols = filteredCols.length > 0 ? [...filteredCols, { colName: "Action", isAction: true }] : [];
@@ -202,10 +205,15 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
                     <tr key={rowIdx} className={`border-b border-border-outline/50 hover:bg-blue-50 transition-colors cursor-pointer ${rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#F9FAFB]'}`}>
                       {finalCols.map((col, colIdx) => {
                         if (col.isAction) {
+                          const rowId = row[idColIndex];
                           return (
                             <td key={colIdx} className="px-6 py-3 h-[56px] align-middle text-center">
                               <div className="flex items-center justify-center gap-2 text-text-secondary">
-                                <button className="p-1.5 rounded-md hover:bg-surface-container hover:text-primary transition-colors cursor-pointer" title="Edit">
+                                <button 
+                                  onClick={() => navigate(`/o2s/edit/${rowId}`)}
+                                  className="p-1.5 rounded-md hover:bg-surface-container hover:text-primary transition-colors cursor-pointer" 
+                                  title="Edit"
+                                >
                                   <Pencil className="w-4 h-4" />
                                 </button>
                                 <button className="p-1.5 rounded-md hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer" title="Delete">

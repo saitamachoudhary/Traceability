@@ -6,6 +6,7 @@ import EnquiryToOffer from './pages/EnquiryToOffer';
 import OrderToShipment from './pages/OrderToShipment';
 import AddEnquiry from './pages/AddEnquiry';
 import EditEnquiry from './pages/EditEnquiry';
+import EditOrderToShipment from './pages/EditOrderToShipment';
 import { ToastProvider } from './contexts/ToastContext';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path="/o2s" element={<OrderToShipment />} />
           <Route path="/e2o/add" element={<AddEnquiry />} />
           <Route path="/e2o/edit/:id" element={<EditEnquiry />} />
+          <Route path="/o2s/edit/:id" element={<EditOrderToShipment />} />
         </Routes>
 
         <Footer />
