@@ -65,3 +65,15 @@ export const getO2SCustomers = (filters) =>
       project: filters?.projects || ""
     }
   }).then(res => res?.resultSet || []);
+
+export const fetchO2STable = (filters) => {
+  return apiClientWithVariable({
+    workflowId: "2c80d805-4790-11f1-8e18-dff8866bd8b0",
+    variable: {
+      date_to: filters?.date_to || "",
+      date_from: filters?.date_from || "",
+      project: filters?.projects || "",
+      customer: filters?.customer || ""
+    }
+  });
+};

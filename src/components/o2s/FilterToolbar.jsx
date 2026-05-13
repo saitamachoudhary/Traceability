@@ -1,10 +1,6 @@
 import { Filter } from 'lucide-react';
 import SearchableSelect from '../common/SearchableSelect';
-import { useOrderToShipmentFilters } from '../../hooks/useOrderToShipmentFilters';
-
-export default function FilterToolbar() {
-  const { filters, options, isLoading, updateFilter } = useOrderToShipmentFilters();
-
+export default function FilterToolbar({ filters, options, isLoading, updateFilter }) {
   return (
     <div className="w-full bg-white rounded-2xl p-6 flex flex-wrap items-center gap-[18px] shadow-[var(--shadow-default)] border border-[#EEF2F7]">
       <div className="flex items-center gap-2 text-text-secondary font-bold text-[12px] uppercase tracking-wider shrink-0">
