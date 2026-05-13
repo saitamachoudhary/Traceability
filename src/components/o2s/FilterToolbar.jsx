@@ -1,6 +1,10 @@
-import { Search, ChevronDown, Calendar, Filter } from 'lucide-react';
+import { Filter } from 'lucide-react';
+import SearchableSelect from '../common/SearchableSelect';
+import { useOrderToShipmentFilters } from '../../hooks/useOrderToShipmentFilters';
 
 export default function FilterToolbar() {
+  const { filters, options, isLoading, updateFilter } = useOrderToShipmentFilters();
+
   return (
     <div className="w-full bg-white rounded-2xl p-6 flex flex-wrap items-center gap-[18px] shadow-[var(--shadow-default)] border border-[#EEF2F7]">
       <div className="flex items-center gap-2 text-text-secondary font-bold text-[12px] uppercase tracking-wider shrink-0">
@@ -8,27 +12,23 @@ export default function FilterToolbar() {
         FILTERS
       </div>
 
-      {/* Project Code */}
-      <div className="flex-1 min-w-[200px] flex flex-col gap-1.5">
-        <label className="text-[12px] font-bold text-[#414750] uppercase tracking-[0.05em] ml-1">Project Code</label>
-        <div className="relative group">
-          <select className="w-full h-[40px] px-3 pr-10 rounded-[8px] border border-[#c1c7d2] bg-white text-[#191c20] text-[14px] font-medium appearance-none outline-none focus:border-[#004274] transition-all cursor-pointer">
-            <option>Select Project</option>
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#414750] pointer-events-none group-hover:text-[#004274] transition-colors" />
-        </div>
-      </div>
-
-      {/* PO Date */}
-      <div className="flex-1 min-w-[200px] flex flex-col gap-1.5">
-        <label className="text-[12px] font-bold text-[#414750] uppercase tracking-[0.05em] ml-1">PO Date</label>
-        <div className="relative group">
-          <select className="w-full h-[40px] px-3 pr-10 rounded-[8px] border border-[#c1c7d2] bg-white text-[#191c20] text-[14px] font-medium appearance-none outline-none focus:border-[#004274] transition-all cursor-pointer">
-            <option>Select Date Range</option>
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#414750] pointer-events-none group-hover:text-[#004274] transition-colors" />
-        </div>
-      </div>
+      <SearchableSelect
+        label="Customer"
+        placeholder="All Customers"
+        value={filters.customer}
+        options={options.customers}
+        onChange={val => updateFilter('customer', val)}
+        isLoading={isLoading}
+      />
+      
+      <SearchableSelect
+        label="Project"
+        placeholder="All Projects"
+        value={filters.projects}
+        options={options.projects}
+        onChange={val => updateFilter('projects', val)}
+        isLoading={isLoading}
+      />
 
     </div>
   );

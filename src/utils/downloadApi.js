@@ -1,6 +1,6 @@
 import { BEARER_TOKEN } from '../config';
 
-export const downloadFile = async (payload) => {
+export const downloadFile = async (payload, fileName = "enquiry_to_offer_template.xlsx") => {
   const response = await fetch(
     "https://apphub.andritz.com/appsapi/appbuilder/downloadMedia",
     {
@@ -21,7 +21,7 @@ export const downloadFile = async (payload) => {
   link.href = url;
 
   // default file name
-  link.download = "enquiry_to_offer_template.xlsx";
+  link.download = fileName;
 
   document.body.appendChild(link);
   link.click();

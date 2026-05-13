@@ -1,5 +1,6 @@
-import { Plus, Upload, FileText, Pencil, Trash2, Download } from 'lucide-react';
+import { Plus, Upload, FileText, Pencil, Trash2, Download, RefreshCcw } from 'lucide-react';
 import { downloadExcel } from '../../utils/downloadExcel';
+import { useDownloadTemplate } from '../../hooks/useDownloadTemplate';
 
 export default function DataTable() {
   const tableData = [
@@ -36,6 +37,35 @@ export default function DataTable() {
     }
   ];
 
+  const { isDownloading, handleDownload: handleDownloadTemplate } = useDownloadTemplate({
+    tableName: "order_to_shipment_new",
+    columns: [
+      "project_name",
+      "customer_name",
+      "backlog_hot",
+      "project_category",
+      "oi_month",
+      "scope_description",
+      "location_hip_hib",
+      "order_value_inr",
+      "precal_gross_profit_inr",
+      "precal_cogs_II",
+      "cogsII_act_comt",
+      "cogsII_fcst_act_comt_tbc",
+      "invoice_date",
+      "invoice_value",
+      "bom_or_sap_specs_ready_for_purchase_requistion_actual",
+      "pr_raised_by_ppc_and_pm_actual",
+      "placement_of_po_by_scm_actual",
+      "raw_material_material_receipt_grn_planned",
+      "raw_material_material_receipt_grn_actual",
+      "manufacturing_packing_and_dispatch_actuals",
+      "contractual_delivery_date",
+      "expected_delivery_date"
+    ],
+    fileName: "order_to_shipment_template.xlsx"
+  });
+
   const handleDownloadData = () => {
     const columns = [
       { colName: 'Project Details' },
@@ -65,17 +95,24 @@ export default function DataTable() {
           <p className="text-[14px] text-text-secondary">Managing engineering demand lifecycle</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 bg-primary hover:bg-primary-container text-white px-4 py-2 rounded-lg text-[14px] font-bold transition-colors shadow-sm cursor-pointer">
+          {/* <button className="flex items-center gap-2 bg-primary hover:bg-primary-container text-white px-4 py-2 rounded-lg text-[14px] font-bold transition-colors shadow-sm cursor-pointer">
             <Plus className="w-4 h-4" />
             Add New
-          </button>
+          </button> */}
           <button className="flex items-center gap-2 bg-white border border-border-outline hover:bg-surface-container text-text-primary px-4 py-2 rounded-lg text-[14px] font-medium transition-colors cursor-pointer">
             <Upload className="w-4 h-4 text-text-secondary" />
             Bulk Upload
           </button>
-          <button className="flex items-center gap-2 bg-white border border-border-outline hover:bg-surface-container text-text-primary px-4 py-2 rounded-lg text-[14px] font-medium transition-colors cursor-pointer">
-            <FileText className="w-4 h-4 text-text-secondary" />
-            Template
+          <button 
+            onClick={handleDownloadTemplate}
+            disabled={isDownloading}
+            className="flex items-center gap-2 bg-white border border-border-outline hover:bg-surface-container text-text-primary px-4 py-2 rounded-lg text-[14px] font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+            {isDownloading ? (
+              <RefreshCcw className="w-4 h-4 text-text-secondary animate-spin" />
+            ) : (
+              <FileText className="w-4 h-4 text-text-secondary" />
+            )}
+            {isDownloading ? "Downloading..." : "Template"}
           </button>
           <button
             onClick={handleDownloadData}
