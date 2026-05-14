@@ -1,6 +1,7 @@
 import { BEARER_TOKEN } from '../config';
 
 const BASE_URL = "https://apphub.andritz.com/appsapi/appbuilder/workflow";
+const BASE_URL_Login = "https://apphub.andritz.com/appsapi/appbuilder/public/workflow";
 
 export const apiClient = async ({ workflowId, date_from, date_to }) => {
   const payload = JSON.stringify({
@@ -78,4 +79,31 @@ export const callWorkflowAPI = async (payload) => {
   });
 
   return await response.json();
+};
+
+export const loginUser = async (email, password) => {
+  const payload = {
+    data: {
+      appId: "af853ae1-c513-11f0-8899-af2975f8a698",
+      email: email,
+      password: password,
+      appName: "traceability-application",
+      tenantName: "andritz"
+    },
+    workflowId: "dadaff59-f660-4933-96d2-279d89ddec70"
+  };
+
+  const formData = new FormData();
+  formData.append("data", JSON.stringify(payload));
+
+  try {
+    const response = await fetch(BASE_URL_Login, {
+      method: "POST",
+      body: formData
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Login API Request Failed:", error);
+    throw error;
+  }
 };
