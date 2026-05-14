@@ -1,7 +1,7 @@
 import { callWorkflow } from '../utils/workflowAPi';
 import { apiClientWithVariable, callWorkflowAPI as apiCallWorkflow } from '../utils/apiClient';
 import { downloadFile } from "../utils/downloadApi";
-import { BEARER_TOKEN } from '../config';
+import { getToken } from '../utils/auth';
 import { callWorkflowAPI } from "../utils/workflowAPi";
 import { removeEmptyFields } from '../utils/removeEmptyFields';
 
@@ -123,7 +123,7 @@ export const getFilePreview = async (filePath) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${BEARER_TOKEN}`
+      Authorization: `Bearer ${getToken()}`
     },
     body: JSON.stringify({
       data: {

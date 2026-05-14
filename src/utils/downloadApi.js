@@ -1,4 +1,4 @@
-import { BEARER_TOKEN } from '../config';
+import { getToken } from './auth';
 
 export const downloadFile = async (payload, fileName = "enquiry_to_offer_template.xlsx") => {
   const response = await fetch(
@@ -7,7 +7,7 @@ export const downloadFile = async (payload, fileName = "enquiry_to_offer_templat
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${BEARER_TOKEN}`
+        Authorization: `Bearer ${getToken()}`
       },
       body: JSON.stringify(payload)
     }
