@@ -6,7 +6,7 @@ const transformChartData = (data) => {
 
   const categories = data.map(item => item[0]); // month
   const values = data.map(item => {
-    const val = item[3];
+    const val = item[1];
     return val === "No Data" || val === null ? 0 : Number(val);
   });
 

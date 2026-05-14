@@ -100,10 +100,10 @@ export default function MonthlySalesChart({ filters, refreshTrigger = 0 }) {
           options={chartOptions}
         />
       </div>
-      <div className="flex justify-between items-center text-[12px] font-medium bg-surface-container/50 -mx-6 -mb-6 px-6 py-4 border-t border-border-outline/50 mt-auto">
+      {/* <div className="flex justify-between items-center text-[12px] font-medium bg-surface-container/50 -mx-6 -mb-6 px-6 py-4 border-t border-border-outline/50 mt-auto">
         <span className="text-text-secondary">Total Sales</span>
         <span className="text-primary font-bold text-[14px]">{formatLargeNumber(totalSales)}</span>
-      </div>
+      </div> */}
     </>
   );
 }
