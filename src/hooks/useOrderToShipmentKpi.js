@@ -8,7 +8,7 @@ import {
   getOtdRate
 } from '../services/orderToShipmentService';
 
-export const useOrderToShipmentKpi = (filters) => {
+export const useOrderToShipmentKpi = (filters, refreshTrigger = 0) => {
   const [data, setData] = useState({
     totalOrders: 0,
     totalOrderValue: 0,
@@ -66,7 +66,7 @@ export const useOrderToShipmentKpi = (filters) => {
     return () => {
       isMounted = false;
     };
-  }, [filters?.date_from, filters?.date_to]);
+  }, [filters?.date_from, filters?.date_to, refreshTrigger]);
 
   return {
     data,

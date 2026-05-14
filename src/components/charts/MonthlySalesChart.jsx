@@ -4,8 +4,8 @@ import _HighchartsReact from 'highcharts-react-official';
 const HighchartsReact = _HighchartsReact.default || _HighchartsReact;
 import { useOrderToShipmentChart } from '../../hooks/useOrderToShipmentChart';
 
-export default function MonthlySalesChart({ filters }) {
-  const { chartData, loading, error } = useOrderToShipmentChart(filters || { date_from: "", date_to: "" });
+export default function MonthlySalesChart({ filters, refreshTrigger = 0 }) {
+  const { chartData, loading, error } = useOrderToShipmentChart(filters || { date_from: "", date_to: "" }, refreshTrigger);
 
   const formatLargeNumber = (num) => {
     if (num === 0 || num === null || num === undefined) return '0';
@@ -100,10 +100,10 @@ export default function MonthlySalesChart({ filters }) {
           options={chartOptions}
         />
       </div>
-      <div className="flex justify-between items-center text-[12px] font-medium bg-surface-container/50 -mx-6 -mb-6 px-6 py-4 border-t border-border-outline/50 mt-auto">
+      {/* <div className="flex justify-between items-center text-[12px] font-medium bg-surface-container/50 -mx-6 -mb-6 px-6 py-4 border-t border-border-outline/50 mt-auto">
         <span className="text-text-secondary">Total Sales</span>
         <span className="text-primary font-bold text-[14px]">{formatLargeNumber(totalSales)}</span>
-      </div>
+      </div> */}
     </>
   );
 }

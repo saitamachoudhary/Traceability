@@ -8,7 +8,6 @@ import { useEnquiryChart } from '../../hooks/useEnquiryChart';
 export default function KPICards({ filters, refreshTrigger }) {
   const { data, isLoading, error } = useEnquiryKpi(filters || { date_from: "", date_to: "" }, refreshTrigger);
   const { categories, series, isLoading: isChartLoading } = useEnquiryChart(filters || { date_from: "", date_to: "" }, refreshTrigger);
-
   // const formatNumber = (num) => {
   //   if (num === 0 || num === null || num === undefined) return '0';
   //   // if (num >= 1000000) return (num / 1000000).toFixed(4) + 'M';
