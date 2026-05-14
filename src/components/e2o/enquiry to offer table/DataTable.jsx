@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Upload, FileSpreadsheet, RefreshCcw, Edit2, FileText, Paperclip, Trash2, Loader2, ArrowLeftRight, Download } from 'lucide-react';
-import { downloadTemplate } from '../../../services/enquiryToOfferService';
+import { downloadTemplate, deleteEnquiryRow } from '../../../services/enquiryToOfferService';
 import { useBulkUpload } from '../../../hooks/useBulkUpload';
 import { useEnquiryTable } from '../../../hooks/useEnquiryTable';
-import { useDeleteEnquiry } from '../../../hooks/useDeleteEnquiry';
+import { useDeleteRecord } from '../../../hooks/useDeleteRecord';
 import { useConvertToOrder } from '../../../hooks/useConvertToOrder';
 import { useUploadDocument } from '../../../hooks/useUploadDocument';
 import { useDocumentViewer } from '../../../hooks/useDocumentViewer';
@@ -53,7 +53,7 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
     openDeleteModal,
     closeDeleteModal,
     handleDelete
-  } = useDeleteEnquiry(onRefresh || refresh);
+  } = useDeleteRecord(deleteEnquiryRow, onRefresh || refresh);
 
   const {
     isConverting,

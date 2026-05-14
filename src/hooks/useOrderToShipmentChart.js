@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getMonthlySalesChart } from '../services/orderToShipmentService';
 import { mapMonthlySalesChart } from '../utils/chartDataMapper';
 
-export const useOrderToShipmentChart = (filters) => {
+export const useOrderToShipmentChart = (filters, refreshTrigger = 0) => {
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -41,7 +41,7 @@ export const useOrderToShipmentChart = (filters) => {
     return () => {
        isMounted = false;
     };
-  }, [filters?.date_from, filters?.date_to]);
+  }, [filters?.date_from, filters?.date_to, refreshTrigger]);
 
   return { chartData, loading, error };
 };

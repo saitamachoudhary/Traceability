@@ -1,13 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { deleteEnquiryRow } from '../services/enquiryToOfferService';
 import { useToast } from '../contexts/ToastContext';
 
-export const useDeleteEnquiry = (onSuccess) => {
+export const useDeleteRecord = (deleteServiceFn, onSuccess) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-  const navigate = useNavigate();
   const { showToast } = useToast();
 
   const openDeleteModal = (id) => {
@@ -25,7 +22,7 @@ export const useDeleteEnquiry = (onSuccess) => {
 
     setIsDeleting(true);
     try {
-      const response = await deleteEnquiryRow(selectedId);
+      const response = await deleteServiceFn(selectedId);
 
       if (response?.status?.value?.toLowerCase() === "success") {
         showToast({
@@ -38,9 +35,6 @@ export const useDeleteEnquiry = (onSuccess) => {
         if (onSuccess) {
           onSuccess();
         }
-        // else {
-        //   navigate("/enquiry-to-offer");
-        // }
       } else {
         showToast({
           type: "error",

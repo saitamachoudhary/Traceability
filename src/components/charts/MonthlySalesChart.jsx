@@ -4,8 +4,8 @@ import _HighchartsReact from 'highcharts-react-official';
 const HighchartsReact = _HighchartsReact.default || _HighchartsReact;
 import { useOrderToShipmentChart } from '../../hooks/useOrderToShipmentChart';
 
-export default function MonthlySalesChart({ filters }) {
-  const { chartData, loading, error } = useOrderToShipmentChart(filters || { date_from: "", date_to: "" });
+export default function MonthlySalesChart({ filters, refreshTrigger = 0 }) {
+  const { chartData, loading, error } = useOrderToShipmentChart(filters || { date_from: "", date_to: "" }, refreshTrigger);
 
   const formatLargeNumber = (num) => {
     if (num === 0 || num === null || num === undefined) return '0';

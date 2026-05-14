@@ -6,8 +6,11 @@ import { useDownloadTemplate } from '../../hooks/useDownloadTemplate';
 import { useBulkUpload } from '../../hooks/useBulkUpload';
 import { useO2STable } from '../../hooks/useO2STable';
 import { saveO2SUploadedData } from '../../utils/uploadApi';
+import { deleteShipmentRow } from '../../services/orderToShipmentService';
+import { useDeleteRecord } from '../../hooks/useDeleteRecord';
 import FileUploadModal from '../e2o/FileUploadModal';
 import PreviewModal from '../e2o/PreviewModal';
+import ConfirmationModal from '../common/ConfirmationModal';
 
 export default function DataTable({ filters, dateRange, refreshTrigger, onRefresh }) {
   const navigate = useNavigate();
@@ -24,6 +27,14 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
   };
 
   const { data, columns, loading, refresh } = useO2STable(tableFilters, refreshTrigger);
+
+  const {
+    isDeleting,
+    showConfirmModal,
+    openDeleteModal,
+    closeDeleteModal,
+    handleDelete
+  } = useDeleteRecord(deleteShipmentRow, onRefresh || refresh);
 
   const {
     file,
@@ -216,7 +227,7 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
                                 >
                                   <Pencil className="w-4 h-4" />
                                 </button>
-                                <button className="p-1.5 rounded-md hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer" title="Delete">
+                                <button onClick={(e) => { e.stopPropagation(); openDeleteModal(rowId); }} className="p-1.5 rounded-md hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer" title="Delete">
                                   <Trash2 className="w-4 h-4" />
                                 </button>
                               </div>
@@ -315,6 +326,13 @@ export default function DataTable({ filters, dateRange, refreshTrigger, onRefres
         onSave={handleFinalSave}
         previewData={previewData}
         isSaving={isSaving}
+      />
+
+      <ConfirmationModal
+        isOpen={showConfirmModal}
+        onClose={closeDeleteModal}
+        onConfirm={handleDelete}
+        isDeleting={isDeleting}
       />
     </div>
   );

@@ -113,3 +113,15 @@ export const saveO2SEditData = async (id, formValues) => {
     }
   });
 };
+
+export const deleteShipmentRow = async (id) => {
+  return apiCallWorkflow({
+    data: {
+      appId: "af853ae1-c513-11f0-8899-af2975f8a698"
+    },
+    workflowId: "c3fbbfaa-da80-11f0-a2fd-1bfc768b8c24",
+    variable: {
+      Id_for_delete_shipment: id
+    }
+  });
+};

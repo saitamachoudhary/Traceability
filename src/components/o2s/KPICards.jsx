@@ -1,8 +1,8 @@
 import { useOrderToShipmentKpi } from '../../hooks/useOrderToShipmentKpi';
 import MonthlySalesChart from '../charts/MonthlySalesChart';
 
-export default function KPICards({ dateRange }) {
-  const { data, loading } = useOrderToShipmentKpi(dateRange || { date_from: "", date_to: "" });
+export default function KPICards({ dateRange, refreshTrigger = 0 }) {
+  const { data, loading } = useOrderToShipmentKpi(dateRange || { date_from: "", date_to: "" }, refreshTrigger);
 
   const formatNumber = (num) => {
     if (num === 0 || num === null || num === undefined) return '0';
@@ -64,7 +64,7 @@ export default function KPICards({ dateRange }) {
         <h3 className="text-[14px] font-bold text-text-primary mb-1">Monthly Sales</h3>
         <p className="text-[12px] text-text-secondary mb-4">Yearly Performance Trend</p>
 
-        <MonthlySalesChart filters={dateRange} />
+        <MonthlySalesChart filters={dateRange} refreshTrigger={refreshTrigger} />
       </div>
 
       <div className="lg:col-span-2 md:col-span-2 bg-[#ffffff] rounded-[16px] p-6 shadow-[var(--shadow-default)] hover:shadow-[var(--shadow-hover)] transition-shadow">
