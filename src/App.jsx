@@ -9,6 +9,7 @@ import EditEnquiry from './pages/EditEnquiry';
 import EditOrderToShipment from './pages/EditOrderToShipment';
 import Login from './pages/Login';
 import { ToastProvider } from './contexts/ToastContext';
+import { UserProvider } from './contexts/UserContext';
 
 function AppLayout() {
   const location = useLocation();
@@ -36,9 +37,11 @@ function AppLayout() {
 function App() {
   return (
     <ToastProvider>
-      <Router>
-        <AppLayout />
-      </Router>
+      <UserProvider>
+        <Router>
+          <AppLayout />
+        </Router>
+      </UserProvider>
     </ToastProvider>
   );
 }

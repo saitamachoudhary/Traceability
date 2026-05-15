@@ -98,6 +98,22 @@ export const callWorkflowAPI = async (payload) => {
   return await response.json();
 };
 
+// ─── User Profile ─────────────────────────────────────────────────────────────
+// Fetches the authenticated user's profile from AppHub.
+export const fetchUserProfile = async () => {
+  const response = await fetch('https://apphub.andritz.com/appsapi/secure/user-vo', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${getToken()}`
+    }
+  });
+
+  if (handleUnauthorized(response)) return null;
+
+  if (!response.ok) throw new Error(`User profile fetch failed: ${response.status}`);
+  return await response.json();
+};
+
 export const loginUser = async (email, password) => {
   const payload = {
     data: {
