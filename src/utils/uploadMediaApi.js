@@ -1,4 +1,4 @@
-import { BEARER_TOKEN } from '../config';
+import { getToken } from './auth';
 
 const UPLOAD_URL = "https://apphub.andritz.com/appsapi/appbuilder/add-media";
 
@@ -32,7 +32,7 @@ export const uploadMediaFile = async (file) => {
   const response = await fetch(UPLOAD_URL, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${BEARER_TOKEN}`
+      Authorization: `Bearer ${getToken()}`
     },
     body: formData
   });

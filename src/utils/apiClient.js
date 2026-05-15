@@ -1,7 +1,18 @@
-import { BEARER_TOKEN } from '../config';
+import { getToken, clearToken } from './auth';
 
 const BASE_URL = "https://apphub.andritz.com/appsapi/appbuilder/workflow";
 const BASE_URL_Login = "https://apphub.andritz.com/appsapi/appbuilder/public/workflow";
+
+// ─── Helper ───────────────────────────────────────────────────────────────────
+// Checks for 401 Unauthorized — clears token and forces redirect to /login.
+const handleUnauthorized = (response) => {
+  if (response.status === 401) {
+    clearToken();
+    window.location.href = '/login';
+    return true;
+  }
+  return false;
+};
 
 export const apiClient = async ({ workflowId, date_from, date_to }) => {
   const payload = JSON.stringify({
@@ -21,10 +32,12 @@ export const apiClient = async ({ workflowId, date_from, date_to }) => {
       method: "POST",
       headers: {
         contentType: "application/json",
-        Authorization: `Bearer ${BEARER_TOKEN}`
+        Authorization: `Bearer ${getToken()}`
       },
       body: formData
     });
+
+    if (handleUnauthorized(response)) return;
 
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
@@ -52,10 +65,12 @@ export const apiClientWithVariable = async ({ workflowId, variable }) => {
     const response = await fetch(BASE_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${BEARER_TOKEN}`
+        Authorization: `Bearer ${getToken()}`
       },
       body: formData
     });
+
+    if (handleUnauthorized(response)) return;
 
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     const result = await response.json();
@@ -73,11 +88,29 @@ export const callWorkflowAPI = async (payload) => {
   const response = await fetch(BASE_URL, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${BEARER_TOKEN}`
+      Authorization: `Bearer ${getToken()}`
     },
     body: formData
   });
 
+  if (handleUnauthorized(response)) return;
+
+  return await response.json();
+};
+
+// ─── User Profile ─────────────────────────────────────────────────────────────
+// Fetches the authenticated user's profile from AppHub.
+export const fetchUserProfile = async () => {
+  const response = await fetch('https://apphub.andritz.com/appsapi/secure/user-vo', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${getToken()}`
+    }
+  });
+
+  if (handleUnauthorized(response)) return null;
+
+  if (!response.ok) throw new Error(`User profile fetch failed: ${response.status}`);
   return await response.json();
 };
 

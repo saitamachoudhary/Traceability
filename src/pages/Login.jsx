@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { BEARER_TOKEN } from '../config';
+import { saveToken } from '../utils/auth';
 import { useToast } from '../contexts/ToastContext';
 import { loginUser } from '../utils/apiClient';
 
@@ -42,6 +42,7 @@ export default function Login() {
       const response = await loginUser(email, password);
 
       if (response?.status?.value?.toLowerCase() === "success" && response?.data?.data?.token) {
+        saveToken(response.data.data.token); // ← persist token to sessionStorage
         showToast({
           type: 'success',
           message: 'Login Successful'

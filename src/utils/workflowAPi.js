@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import { BEARER_TOKEN } from '../config';
+import { getToken } from './auth';
 
 export const callWorkflow = ({ workflowId, date_from, date_to }) => {
   return apiClient({ workflowId, date_from, date_to });
@@ -22,7 +22,7 @@ export const callWorkflowAPI = async (workflowId, variables = {}) => {
   const response = await fetch(BASE_URL, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${BEARER_TOKEN}`
+      Authorization: `Bearer ${getToken()}`
     },
     body: formData
   });

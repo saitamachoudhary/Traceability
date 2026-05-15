@@ -1,4 +1,4 @@
-import { BEARER_TOKEN } from '../config';
+import { getToken } from './auth';
 
 const UPLOAD_URL = "https://apphub.andritz.com/appsapi/appbuilder/add-media";
 const WORKFLOW_URL = "https://apphub.andritz.com/appsapi/appbuilder/workflow";
@@ -40,7 +40,7 @@ export const uploadFile = async (file, onProgress) => {
     const response = await fetch(UPLOAD_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${BEARER_TOKEN}`
+        Authorization: `Bearer ${getToken()}`
       },
       body: formData
     });
@@ -83,7 +83,7 @@ export const saveUploadedData = async (filePath) => {
   const response = await fetch(WORKFLOW_URL, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${BEARER_TOKEN}`
+      Authorization: `Bearer ${getToken()}`
     },
     body: formData
   });
@@ -109,7 +109,7 @@ export const saveO2SUploadedData = async (filePath) => {
   const response = await fetch(WORKFLOW_URL, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${BEARER_TOKEN}`
+      Authorization: `Bearer ${getToken()}`
     },
     body: formData
   });
