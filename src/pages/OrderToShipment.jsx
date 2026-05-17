@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WorkflowHeader from '../components/e2o/WorkflowHeader';
 import KPICards from '../components/o2s/KPICards';
@@ -30,7 +30,11 @@ export default function OrderToShipment() {
     setRefreshTrigger(prev => prev + 1);
   };
 
-  const combinedFilters = { ...filters, ...dateRange };
+  // Memoized so KPICards doesn't re-render unless the actual values change.
+  const combinedFilters = useMemo(
+    () => ({ ...filters, ...dateRange }),
+    [filters, dateRange]
+  );
 
   return (
     <main className="flex-1 w-full px-8 flex flex-col py-8 gap-6">

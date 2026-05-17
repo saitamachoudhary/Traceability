@@ -1,75 +1,36 @@
-import { useState, useEffect } from 'react';
 import {
   getTotalOrders,
   getTotalOrderValue,
   getAvgLeadTime,
   getInManufacturing,
   getDelivered,
-  getOtdRate
+  getOtdRate,
 } from '../services/orderToShipmentService';
+import { useAsyncResource } from './useAsyncResource';
+
+const INITIAL = {
+  totalOrders: 0, totalOrderValue: 0, avgLeadTime: 0,
+  inManufacturing: 0, delivered: 0, otdRate: 0,
+};
 
 export const useOrderToShipmentKpi = (filters, refreshTrigger = 0) => {
-  const [data, setData] = useState({
-    totalOrders: 0,
-    totalOrderValue: 0,
-    avgLeadTime: 0,
-    inManufacturing: 0,
-    delivered: 0,
-    otdRate: 0
-  });
-
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [
-          totalOrders,
-          totalOrderValue,
-          avgLeadTime,
-          inManufacturing,
-          delivered,
-          otdRate
-        ] = await Promise.all([
+  const { data, isLoading } = useAsyncResource(
+    async () => {
+      const [totalOrders, totalOrderValue, avgLeadTime, inManufacturing, delivered, otdRate] =
+        await Promise.all([
           getTotalOrders(filters),
           getTotalOrderValue(filters),
           getAvgLeadTime(filters),
           getInManufacturing(filters),
           getDelivered(filters),
-          getOtdRate(filters)
+          getOtdRate(filters),
         ]);
+      return { totalOrders, totalOrderValue, avgLeadTime, inManufacturing, delivered, otdRate };
+    },
+    [filters?.date_from, filters?.date_to, refreshTrigger],
+    INITIAL
+  );
 
-        if (isMounted) {
-          setData({
-            totalOrders,
-            totalOrderValue,
-            avgLeadTime,
-            inManufacturing,
-            delivered,
-            otdRate
-          });
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [filters?.date_from, filters?.date_to, refreshTrigger]);
-
-  return {
-    data,
-    loading
-  };
+  // Public API kept identical to the previous version (`loading`, not `isLoading`).
+  return { data, loading: isLoading };
 };

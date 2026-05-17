@@ -1,13 +1,10 @@
 import { getToken, clearToken } from './auth';
+import { ENDPOINTS } from '../constants/api';
 
-const BASE_URL = "https://apphub.andritz.com/appsapi/appbuilder/workflow";
-const BASE_URL_Login = "https://apphub.andritz.com/appsapi/appbuilder/public/workflow";
-
-// ─── Helper ───────────────────────────────────────────────────────────────────
-// Checks for 401 Unauthorized — clears token and forces redirect to /login.
-// Skips the redirect when we're already on /login to avoid an infinite
-// reload loop (was happening in production when UserProvider fired
-// fetchUserProfile() with no token on the login screen).
+// ─── 401 handler ──────────────────────────────────────────────────────────────
+// Clears token + forces redirect to /login on 401. Skips redirect if we're
+// already on /login (prevents reload loop when UserProvider fires fetchUserProfile
+// with no token on the login screen).
 const handleUnauthorized = (response) => {
   if (response.status === 401) {
     clearToken();
@@ -19,130 +16,99 @@ const handleUnauthorized = (response) => {
   return false;
 };
 
-export const apiClient = async ({ workflowId, date_from, date_to }) => {
-  const payload = JSON.stringify({
-    "data": {},
-    "workflowId": workflowId,
-    "variable": {
-      date_from: date_from || "",
-      date_to: date_to || ""
-    }
-  });
-  try {
-    const formData = new FormData();
-
-    formData.append("data", payload);
-
-    const response = await fetch(BASE_URL, {
-      method: "POST",
-      headers: {
-        contentType: "application/json",
-        Authorization: `Bearer ${getToken()}`
-      },
-      body: formData
-    });
-
-    if (handleUnauthorized(response)) return;
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const result = await response.json();
-    return result?.data?.data;
-  } catch (error) {
-    console.error("API Request Failed:", error);
-    throw error;
-  }
-};
-
-// Used by Filter APIs — accepts any variable shape (customer, projects, packages, etc.)
-export const apiClientWithVariable = async ({ workflowId, variable }) => {
-  const payload = JSON.stringify({
-    "data": {},
-    "workflowId": workflowId,
-    "variable": variable || {}
-  });
-  try {
-    const formData = new FormData();
-    formData.append("data", payload);
-
-    const response = await fetch(BASE_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${getToken()}`
-      },
-      body: formData
-    });
-
-    if (handleUnauthorized(response)) return;
-
-    if (!response.ok) throw new Error(`API error: ${response.status}`);
-    const result = await response.json();
-    return result?.data?.data;
-  } catch (error) {
-    console.error("Filter API Request Failed:", error);
-    throw error;
-  }
-};
-
-export const callWorkflowAPI = async (payload) => {
+// ─── Unified workflow caller ──────────────────────────────────────────────────
+// One function for every workflow request. Backend expects a multipart form
+// with a single `data` field containing `{ data, workflowId, variable }`.
+//
+// Note: do NOT set Content-Type explicitly — the browser must add the
+// multipart boundary itself for FormData payloads.
+export const callWorkflow = async ({
+  workflowId,
+  data = {},
+  variable = {},
+  raw = false, // when true, returns the full JSON envelope; default unwraps to data.data
+}) => {
   const formData = new FormData();
-  formData.append("data", JSON.stringify(payload));
+  formData.append("data", JSON.stringify({ data, workflowId, variable }));
 
-  const response = await fetch(BASE_URL, {
+  const response = await fetch(ENDPOINTS.workflow, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${getToken()}`
-    },
-    body: formData
+    headers: { Authorization: `Bearer ${getToken()}` },
+    body: formData,
   });
 
   if (handleUnauthorized(response)) return;
+  if (!response.ok) throw new Error(`API error: ${response.status}`);
 
-  return await response.json();
+  const result = await response.json();
+  return raw ? result : result?.data?.data;
 };
 
-// ─── User Profile ─────────────────────────────────────────────────────────────
-// Fetches the authenticated user's profile from AppHub.
+// ─── Backward-compatible wrappers ─────────────────────────────────────────────
+// Kept so existing service files keep working while we migrate. Once every
+// caller uses `callWorkflow` directly, these can be deleted.
+
+// Was: apiClient({ workflowId, date_from, date_to }) → data.data
+export const apiClient = ({ workflowId, date_from, date_to }) =>
+  callWorkflow({
+    workflowId,
+    variable: { date_from: date_from || "", date_to: date_to || "" },
+  });
+
+// Was: apiClientWithVariable({ workflowId, variable }) → data.data
+export const apiClientWithVariable = ({ workflowId, variable }) =>
+  callWorkflow({ workflowId, variable: variable || {} });
+
+// Was: callWorkflowAPI(payload) → raw envelope
+// Used by services that need the `{ status, data: { data: {...} } }` shape.
+export const callWorkflowAPI = (payload) =>
+  callWorkflow({
+    workflowId: payload.workflowId,
+    data: payload.data || {},
+    variable: payload.variable || {},
+    raw: true,
+  });
+
+// ─── User profile ─────────────────────────────────────────────────────────────
 // Short-circuits when no token is present so we don't fire a request that
 // would 401 (and trigger an unwanted redirect) on the login screen.
 export const fetchUserProfile = async () => {
   const token = getToken();
   if (!token) return null;
 
-  const response = await fetch('https://apphub.andritz.com/appsapi/secure/user-vo', {
+  const response = await fetch(ENDPOINTS.userProfile, {
     method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
+    headers: { Authorization: `Bearer ${token}` },
   });
 
   if (handleUnauthorized(response)) return null;
-
   if (!response.ok) throw new Error(`User profile fetch failed: ${response.status}`);
   return await response.json();
 };
 
+// ─── Login ────────────────────────────────────────────────────────────────────
+import { APP_ID } from '../constants/api';
+import { WORKFLOWS } from '../constants/workflows';
+
 export const loginUser = async (email, password) => {
   const payload = {
     data: {
-      appId: "af853ae1-c513-11f0-8899-af2975f8a698",
-      email: email,
-      password: password,
+      appId: APP_ID,
+      email,
+      password,
       appName: "traceability-application",
-      tenantName: "andritz"
+      tenantName: "andritz",
     },
-    workflowId: "dadaff59-f660-4933-96d2-279d89ddec70"
+    workflowId: WORKFLOWS.AUTH.login,
   };
 
   const formData = new FormData();
   formData.append("data", JSON.stringify(payload));
 
   try {
-    const response = await fetch(BASE_URL_Login, {
+    const response = await fetch(ENDPOINTS.publicWorkflow, {
       method: "POST",
-      body: formData
+      body: formData,
     });
     return await response.json();
   } catch (error) {
@@ -153,12 +119,9 @@ export const loginUser = async (email, password) => {
 
 export const initApp = async () => {
   try {
-    const response = await fetch("https://apphub.andritz.com/appsapi/appbuilder/app/init/af853ae1-c513-11f0-8899-af2975f8a698", {
+    const response = await fetch(ENDPOINTS.appInit, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        // Authorization: `Bearer ${BEARER_TOKEN}`
-      }
+      headers: { "Content-Type": "application/json" },
     });
     const data = await response.json();
     console.log("App init:", data);

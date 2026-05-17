@@ -30,8 +30,6 @@ export default function EnquiryToOffer() {
     setRefreshTrigger(prev => prev + 1);
   };
 
-  const combinedFilters = { ...filters, ...dateRange };
-
   return (
     <main className="flex-1 w-full px-8 flex flex-col py-8 gap-6">
       <WorkflowHeader

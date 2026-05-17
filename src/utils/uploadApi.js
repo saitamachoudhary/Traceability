@@ -1,7 +1,6 @@
 import { getToken } from './auth';
-
-const UPLOAD_URL = "https://apphub.andritz.com/appsapi/appbuilder/add-media";
-const WORKFLOW_URL = "https://apphub.andritz.com/appsapi/appbuilder/workflow";
+import { ENDPOINTS, APP_ID } from '../constants/api';
+import { WORKFLOWS } from '../constants/workflows';
 
 export const uploadFile = async (file, onProgress) => {
   const formData = new FormData();
@@ -16,103 +15,61 @@ export const uploadFile = async (file, onProgress) => {
       mediatype: "file",
       lum_media_access_type_id: 1,
       permissionid: 1,
-      lum_media_reference_type_id: 5
+      lum_media_reference_type_id: 5,
     })
   );
 
   formData.append("file", file);
 
   if (onProgress) {
-    // Simulated progress since fetch doesn't support upload progress events natively
+    // Simulated progress since fetch doesn't support upload progress events natively.
     let progress = 0;
     const interval = setInterval(() => {
       progress += 10;
-      if (progress <= 90) {
-        onProgress(progress);
-      }
+      if (progress <= 90) onProgress(progress);
     }, 100);
-
-    // Save interval ID to clear it when fetch completes
     file._progressInterval = interval;
   }
 
   try {
-    const response = await fetch(UPLOAD_URL, {
+    const response = await fetch(ENDPOINTS.uploadMedia, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${getToken()}`
-      },
-      body: formData
+      headers: { Authorization: `Bearer ${getToken()}` },
+      body: formData,
     });
 
-    if (file._progressInterval) {
-      clearInterval(file._progressInterval);
-    }
-    
+    if (file._progressInterval) clearInterval(file._progressInterval);
     if (onProgress) onProgress(100);
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
 
     const result = await response.json();
     return result?.data;
   } catch (error) {
-    if (file._progressInterval) {
-      clearInterval(file._progressInterval);
-    }
+    if (file._progressInterval) clearInterval(file._progressInterval);
     throw error;
   }
 };
 
-export const saveUploadedData = async (filePath) => {
+// Shared submit helper for bulk-upload save calls.
+const submitBulkSave = async (workflowId, filePath) => {
   const formData = new FormData();
-
   formData.append(
     "data",
     JSON.stringify({
-      data: {
-        appId: "af853ae1-c513-11f0-8899-af2975f8a698",
-        filePath: filePath,
-        skip: 0
-      },
-      workflowId: "9a96c36a-cea6-11f0-8899-a1080db368b6"
+      data: { appId: APP_ID, filePath, skip: 0 },
+      workflowId,
     })
   );
 
-  const response = await fetch(WORKFLOW_URL, {
+  const response = await fetch(ENDPOINTS.workflow, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${getToken()}`
-    },
-    body: formData
+    headers: { Authorization: `Bearer ${getToken()}` },
+    body: formData,
   });
 
   return await response.json();
 };
 
-export const saveO2SUploadedData = async (filePath) => {
-  const formData = new FormData();
-
-  formData.append(
-    "data",
-    JSON.stringify({
-      data: {
-        appId: "af853ae1-c513-11f0-8899-af2975f8a698",
-        filePath: filePath,
-        skip: 0
-      },
-      workflowId: "580eae5e-d4c8-11f0-911f-5f25d94b6664"
-    })
-  );
-
-  const response = await fetch(WORKFLOW_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${getToken()}`
-    },
-    body: formData
-  });
-
-  return await response.json();
-};
+export const saveUploadedData    = (filePath) => submitBulkSave(WORKFLOWS.E2O.bulk.saveUpload, filePath);
+export const saveO2SUploadedData = (filePath) => submitBulkSave(WORKFLOWS.O2S.bulk.saveUpload, filePath);

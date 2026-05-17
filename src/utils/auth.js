@@ -1,4 +1,5 @@
 import { DEV_FALLBACK_TOKEN } from '../config';
+import { ENDPOINTS } from '../constants/api';
 
 // ─── Internal timer ref ────────────────────────────────────────────────────
 let _refreshTimer = null;
@@ -37,7 +38,7 @@ const storeTokenInSession = (token) => {
   sessionStorage.setItem(VALIDITY_KEY, String(validity));
   sessionStorage.setItem(CREATED_AT_KEY, String(Date.now()));
   sessionStorage.setItem('appHub', 'true');
-  sessionStorage.setItem('appsBaseUrl', 'https://apphub.andritz.com/appsapi/');
+    sessionStorage.setItem('appsBaseUrl', `${ENDPOINTS.iframeOrigin}/appsapi/`);
 };
 
 /**
@@ -61,7 +62,7 @@ const scheduleTokenRefresh = () => {
 const doRefreshToken = async () => {
   try {
     const response = await fetch(
-      'https://apphub.andritz.com/appsapi/secure/refresh-token',
+      ENDPOINTS.refreshToken,
       { method: 'GET', headers: { Authorization: `Bearer ${getToken()}` } }
     );
     if (!response.ok) throw new Error(`Refresh failed: ${response.status}`);
@@ -148,10 +149,10 @@ export const postSessionToIframe = (iframeEl) => {
     data: {
       appAccessToken: sessionStorage.getItem(TOKEN_KEY) || getToken(),
       appHub: sessionStorage.getItem('appHub') || 'true',
-      appsBaseUrl: sessionStorage.getItem('appsBaseUrl') || 'https://apphub.andritz.com/appsapi/',
+      appsBaseUrl: sessionStorage.getItem('appsBaseUrl') || `${ENDPOINTS.iframeOrigin}/appsapi/`,
       isDashboardEmbeddedInApp: 'true',
     }
   };
 
-  iframeEl.contentWindow.postMessage(payload, 'https://apphub.andritz.com');
+  iframeEl.contentWindow.postMessage(payload, ENDPOINTS.iframeOrigin);
 };

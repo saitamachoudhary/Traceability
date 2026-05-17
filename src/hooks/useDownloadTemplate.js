@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { downloadFile } from '../utils/downloadApi';
+import { CONNECTION_ID } from '../constants/api';
 
 export const useDownloadTemplate = ({ tableName, columns, fileName }) => {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -9,16 +10,10 @@ export const useDownloadTemplate = ({ tableName, columns, fileName }) => {
     try {
       const payload = {
         data: {
-          connectionId: "af995f25-c513-11f0-8899-bb17b82660ad",
-          tables: [
-            {
-              tableName: tableName,
-              columns: columns
-            }
-          ]
-        }
+          connectionId: CONNECTION_ID,
+          tables: [{ tableName, columns }],
+        },
       };
-      
       await downloadFile(payload, fileName);
     } catch (error) {
       console.error("Template download failed:", error);

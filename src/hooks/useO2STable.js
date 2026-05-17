@@ -1,39 +1,24 @@
-import { useState, useEffect } from 'react';
 import { fetchO2STable } from '../services/orderToShipmentService';
+import { useAsyncResource } from './useAsyncResource';
+
+const INITIAL = { data: [], columns: [] };
 
 export const useO2STable = (filters, refreshTrigger = 0) => {
-  const [data, setData] = useState([]);
-  const [columns, setColumns] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  const getTableData = async () => {
-    setLoading(true);
-    try {
+  const { data: payload, isLoading, refetch } = useAsyncResource(
+    async () => {
       const res = await fetchO2STable(filters);
+      return res
+        ? { columns: res.metaData || [], data: res.resultSet || [] }
+        : INITIAL;
+    },
+    [filters.customer, filters.projects, filters.date_from, filters.date_to, refreshTrigger],
+    INITIAL
+  );
 
-      if (res) {
-        const meta = res.metaData || [];
-        const rows = res.resultSet || [];
-
-        setColumns(meta);
-        setData(rows);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+  return {
+    data: payload.data,
+    columns: payload.columns,
+    loading: isLoading,
+    refresh: refetch,
   };
-
-  useEffect(() => {
-    getTableData();
-  }, [
-    filters.customer,
-    filters.projects,
-    filters.date_from,
-    filters.date_to,
-    refreshTrigger
-  ]);
-
-  return { data, columns, loading, refresh: getTableData };
 };

@@ -1,32 +1,15 @@
-import { apiClient } from './apiClient';
-import { getToken } from './auth';
+// DEPRECATED — kept as a thin compatibility shim for backward imports.
+// Prefer `callWorkflow` from './apiClient' for all new code.
+import { callWorkflow as unifiedCallWorkflow } from './apiClient';
 
-export const callWorkflow = ({ workflowId, date_from, date_to }) => {
-  return apiClient({ workflowId, date_from, date_to });
-};
-
-export const callWorkflowAPI = async (workflowId, variables = {}) => {
-  const formData = new FormData();
-
-  formData.append(
-    "data",
-    JSON.stringify({
-      data: {},
-      workflowId,
-      variable: variables
-    })
-  );
-
-  const BASE_URL = "https://apphub.andritz.com/appsapi/appbuilder/workflow";
-
-  const response = await fetch(BASE_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${getToken()}`
-    },
-    body: formData
+// Was: callWorkflow({ workflowId, date_from, date_to }) → unwrapped data.data
+export const callWorkflow = ({ workflowId, date_from, date_to }) =>
+  unifiedCallWorkflow({
+    workflowId,
+    variable: { date_from: date_from || "", date_to: date_to || "" },
   });
 
-  const result = await response.json();
-  return result?.data?.data;
-};
+// Was: callWorkflowAPI(workflowId, variables = {}) → unwrapped data.data
+// Positional signature kept for legacy callers.
+export const callWorkflowAPI = (workflowId, variables = {}) =>
+  unifiedCallWorkflow({ workflowId, variable: variables });

@@ -1,76 +1,34 @@
-import { useState, useEffect } from 'react';
 import {
   getTotalOfferValue,
   getTurPackages,
   getDirectAtPackages,
   getExecutedProjects,
   getNonExecutedProjects,
-  getConversionRate
+  getConversionRate,
 } from '../services/enquiryToOfferService';
+import { useAsyncResource } from './useAsyncResource';
+
+const INITIAL = {
+  totalOffer: 0, tur: 0, directAt: 0,
+  executed: 0, nonExecuted: 0, conversion: 0,
+};
 
 export const useEnquiryKpi = (filters, refreshTrigger = 0) => {
-  const [data, setData] = useState({
-    totalOffer: 0,
-    tur: 0,
-    directAt: 0,
-    executed: 0,
-    nonExecuted: 0,
-    conversion: 0
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const [
-          totalOffer,
-          tur,
-          directAt,
-          executed,
-          nonExecuted,
-          conversion
-        ] = await Promise.all([
-          getTotalOfferValue(filters),
-          getTurPackages(filters),
-          getDirectAtPackages(filters),
-          getExecutedProjects(filters),
-          getNonExecutedProjects(filters),
-          getConversionRate(filters)
-        ]);
-
-        if (isMounted) {
-          setData({
-            totalOffer,
-            tur,
-            directAt,
-            executed,
-            nonExecuted,
-            conversion
-          });
-        }
-      } catch (err) {
-        if (isMounted) {
-          console.error("Failed to fetch KPIs:", err);
-          setError(err);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [filters.date_from, filters.date_to, refreshTrigger]);
+  const { data, isLoading, error } = useAsyncResource(
+    async () => {
+      const [totalOffer, tur, directAt, executed, nonExecuted, conversion] = await Promise.all([
+        getTotalOfferValue(filters),
+        getTurPackages(filters),
+        getDirectAtPackages(filters),
+        getExecutedProjects(filters),
+        getNonExecutedProjects(filters),
+        getConversionRate(filters),
+      ]);
+      return { totalOffer, tur, directAt, executed, nonExecuted, conversion };
+    },
+    [filters?.date_from, filters?.date_to, refreshTrigger],
+    INITIAL
+  );
 
   return { data, isLoading, error };
 };

@@ -1,47 +1,19 @@
-import { useState, useEffect } from 'react';
 import { getMonthlySalesChart } from '../services/orderToShipmentService';
 import { mapMonthlySalesChart } from '../utils/chartDataMapper';
+import { useAsyncResource } from './useAsyncResource';
 
 export const useOrderToShipmentChart = (filters, refreshTrigger = 0) => {
-  const [chartData, setChartData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { data, isLoading, error } = useAsyncResource(
+    async () => {
+      const response = await getMonthlySalesChart(filters);
+      const resultSet = response?.resultSet || [];
+      if (resultSet.length === 0 || response === "No Data") return null;
+      return mapMonthlySalesChart(resultSet);
+    },
+    [filters?.date_from, filters?.date_to, refreshTrigger],
+    null
+  );
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchChart = async () => {
-      setLoading(true);
-
-      try {
-        const response = await getMonthlySalesChart(filters);
-        const resultSet = response?.resultSet || [];
-
-        if (isMounted) {
-          if (resultSet.length === 0 || response === "No Data" || !resultSet) {
-             setChartData(null);
-          } else {
-             const mappedData = mapMonthlySalesChart(resultSet);
-             setChartData(mappedData);
-          }
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchChart();
-
-    return () => {
-       isMounted = false;
-    };
-  }, [filters?.date_from, filters?.date_to, refreshTrigger]);
-
-  return { chartData, loading, error };
+  // Keep previous public API (`chartData`, `loading`).
+  return { chartData: data, loading: isLoading, error };
 };

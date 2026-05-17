@@ -1,4 +1,4 @@
-const BASE_DOCUMENT_URL = "https://apphub.andritz.com";
+import { ENDPOINTS } from '../constants/api';
 
 /**
  * Converts a relative document path from the API into a full URL.
@@ -9,9 +9,8 @@ const BASE_DOCUMENT_URL = "https://apphub.andritz.com";
  */
 export const getDocumentUrl = (path) => {
   if (!path) return "";
-  // Avoid double-encoding if a full URL is accidentally stored
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
-  return `${BASE_DOCUMENT_URL}${path}`;
+  return `${ENDPOINTS.iframeOrigin}${path}`;
 };
 
 /**

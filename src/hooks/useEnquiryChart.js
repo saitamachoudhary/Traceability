@@ -1,59 +1,27 @@
-import { useState, useEffect } from 'react';
 import { getConversionChartData } from '../services/enquiryToOfferService';
+import { useAsyncResource } from './useAsyncResource';
 
 const transformChartData = (data) => {
   if (!data || data.length === 0) return { categories: [], series: [] };
 
-  const categories = data.map(item => item[0]); // month
+  const categories = data.map(item => item[0]);
   const values = data.map(item => {
     const val = item[1];
     return val === "No Data" || val === null ? 0 : Number(val);
   });
 
-  return {
-    categories,
-    series: values
-  };
+  return { categories, series: values };
 };
 
+const INITIAL = { categories: [], series: [] };
+
 export const useEnquiryChart = (filters, refreshTrigger = 0) => {
-  const [chartData, setChartData] = useState({
-    categories: [],
-    series: []
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { data, isLoading, error } = useAsyncResource(
+    async () => transformChartData(await getConversionChartData(filters)),
+    [filters?.date_from, filters?.date_to, refreshTrigger],
+    INITIAL
+  );
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchChart = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const raw = await getConversionChartData(filters);
-        if (isMounted) {
-          const formatted = transformChartData(raw);
-          setChartData(formatted);
-        }
-      } catch (err) {
-        if (isMounted) {
-          console.error("Failed to fetch chart data:", err);
-          setError(err);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchChart();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [filters.date_from, filters.date_to, refreshTrigger]);
-
-  return { ...chartData, isLoading, error };
+  // Keep the previous flat shape `{ categories, series, isLoading, error }`.
+  return { ...data, isLoading, error };
 };
