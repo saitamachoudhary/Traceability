@@ -11,6 +11,7 @@ import EditOrderToShipment from './pages/EditOrderToShipment';
 import Login from './pages/Login';
 import E2ODashboard from './pages/E2ODashboard';
 import O2SDashboard from './pages/O2SDashboard';
+import RequireAuth from './components/RequireAuth';
 import { ToastProvider } from './contexts/ToastContext';
 import { UserProvider } from './contexts/UserContext';
 import { initSession, isLoggedIn } from './utils/auth';
@@ -36,14 +37,14 @@ function AppLayout() {
       
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/e2o" element={<EnquiryToOffer />} />
-        <Route path="/o2s" element={<OrderToShipment />} />
-        <Route path="/e2o/add" element={<AddEnquiry />} />
-        <Route path="/e2o/edit/:id" element={<EditEnquiry />} />
-        <Route path="/o2s/edit/:id" element={<EditOrderToShipment />} />
-        <Route path="/analytics-e2o" element={<E2ODashboard />} />
-        <Route path="/analytics-o2s" element={<O2SDashboard />} />
+        <Route path="/" element={<RequireAuth><Home /></RequireAuth>} />
+        <Route path="/e2o" element={<RequireAuth><EnquiryToOffer /></RequireAuth>} />
+        <Route path="/o2s" element={<RequireAuth><OrderToShipment /></RequireAuth>} />
+        <Route path="/e2o/add" element={<RequireAuth><AddEnquiry /></RequireAuth>} />
+        <Route path="/e2o/edit/:id" element={<RequireAuth><EditEnquiry /></RequireAuth>} />
+        <Route path="/o2s/edit/:id" element={<RequireAuth><EditOrderToShipment /></RequireAuth>} />
+        <Route path="/analytics-e2o" element={<RequireAuth><E2ODashboard /></RequireAuth>} />
+        <Route path="/analytics-o2s" element={<RequireAuth><O2SDashboard /></RequireAuth>} />
       </Routes>
 
       {!isLoginPage && !isFullscreenPage && <Footer />}

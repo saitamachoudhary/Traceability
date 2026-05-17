@@ -5,10 +5,10 @@ import SecondaryCard from '../components/SecondaryCard';
 
 export default function Home() {
   return (
-    <main className="flex-1 max-w-7xl mx-auto w-full px-8 flex flex-col justify-center pb-16">
+    <main className="flex-1 max-w-7xl mx-auto w-full px-8 flex flex-col justify-center pb-6">
       <HeroSection />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-[1000px] mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-[1000px] mx-auto">
         <ModuleCard
           icon={FileText}
           title="ENQUIRY TO OFFER"
