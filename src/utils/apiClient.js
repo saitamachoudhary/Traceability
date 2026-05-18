@@ -5,10 +5,15 @@ const BASE_URL_Login = "https://apphub.andritz.com/appsapi/appbuilder/public/wor
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
 // Checks for 401 Unauthorized — clears token and forces redirect to /login.
+// Skips the redirect when we're already on /login to avoid an infinite
+// reload loop (was happening in production when UserProvider fired
+// fetchUserProfile() with no token on the login screen).
 const handleUnauthorized = (response) => {
   if (response.status === 401) {
     clearToken();
-    window.location.href = '/login';
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
     return true;
   }
   return false;
@@ -100,11 +105,16 @@ export const callWorkflowAPI = async (payload) => {
 
 // ─── User Profile ─────────────────────────────────────────────────────────────
 // Fetches the authenticated user's profile from AppHub.
+// Short-circuits when no token is present so we don't fire a request that
+// would 401 (and trigger an unwanted redirect) on the login screen.
 export const fetchUserProfile = async () => {
+  const token = getToken();
+  if (!token) return null;
+
   const response = await fetch('https://apphub.andritz.com/appsapi/secure/user-vo', {
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${getToken()}`
+      Authorization: `Bearer ${token}`
     }
   });
 
@@ -138,5 +148,21 @@ export const loginUser = async (email, password) => {
   } catch (error) {
     console.error("Login API Request Failed:", error);
     throw error;
+  }
+};
+
+export const initApp = async () => {
+  try {
+    const response = await fetch("https://apphub.andritz.com/appsapi/appbuilder/app/init/af853ae1-c513-11f0-8899-af2975f8a698", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${BEARER_TOKEN}`
+      }
+    });
+    const data = await response.json();
+    console.log("App init:", data);
+  } catch (error) {
+    console.error("App init failed:", error);
   }
 };

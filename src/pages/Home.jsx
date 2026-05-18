@@ -1,25 +1,14 @@
-import { useEffect } from 'react';
 import { FileText, Truck, LayoutDashboard, Activity } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import ModuleCard from '../components/ModuleCard';
 import SecondaryCard from '../components/SecondaryCard';
-import { fetchUserProfile } from '../utils/apiClient';
-import { useUser } from '../contexts/UserContext';
 
 export default function Home() {
-  const { setUser } = useUser();
-
-  useEffect(() => {
-    fetchUserProfile()
-      .then((data) => { if (data) setUser(data); })
-      .catch((err) => console.error('Failed to load user profile:', err));
-  }, []);
-
   return (
-    <main className="flex-1 max-w-7xl mx-auto w-full px-8 flex flex-col justify-center pb-16">
+    <main className="flex-1 max-w-7xl mx-auto w-full px-8 flex flex-col justify-center pb-6">
       <HeroSection />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-[1000px] mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-[1000px] mx-auto">
         <ModuleCard
           icon={FileText}
           title="ENQUIRY TO OFFER"
@@ -45,7 +34,6 @@ export default function Home() {
           href="/analytics-o2s"
         />
       </div>
-
     </main>
   );
 }
